@@ -112,7 +112,7 @@ class _WelcomeState extends State<Welcome> {
               )
             ],
           ),
-          RaisedButton(onPressed: onPressed,color: Colors.black,padding: EdgeInsets.all(10.0), child:
+          RaisedButton(onPressed: onPressedContinue,color: Colors.black,padding: EdgeInsets.all(10.0), child:
 
           Text(
             'Continue',
@@ -136,5 +136,5 @@ class _WelcomeState extends State<Welcome> {
         selectedDate = picked;
       });
   }
-  void onPressed(){}
+  void onPressedContinue(){}
 }
