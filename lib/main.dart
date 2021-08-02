@@ -8,14 +8,14 @@ import 'package:proiect_bmi/update.dart';
 import 'User.dart';
 
 void main() {
-
-  if(1==1) {//to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
+  if (1 == 0) {
+    //to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
-      home: Update(),//home page
+      home: Update(), //home page
     ));
-  }else{
+  } else {
     runApp(MaterialApp(
-      home: Welcome(),//welcome page
+      home: Home(), //welcome page
     ));
   }
 }
@@ -57,10 +57,16 @@ class _HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Row( //sex and metric system buttons
+          Row(
+            //sex and metric system buttons
             children: [
-              Text('Sex:  ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+              Text(
+                'Sex:  ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               DropdownButton<String>(
                 value: selectedSex,
                 items: <String>['Male', 'Female'].map((String value) {
@@ -75,10 +81,15 @@ class _HomeState extends State<Home> {
                   });
                 },
               ),
-              Text('  Metric System:    ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-              new Flexible(child:
-              DropdownButton<String>(
+              Text(
+                '  Metric System:    ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              new Flexible(
+                  child: DropdownButton<String>(
                 value: selectedMetricSystem,
                 items: <String>['Metric', 'Imperial'].map((String value) {
                   return DropdownMenuItem<String>(
@@ -92,102 +103,127 @@ class _HomeState extends State<Home> {
                     selectedMetricSystem = newValue!;
                   });
                 },
-              )
-              )
+              ))
             ],
-
           ),
-          Row( //weight,height and age textFields
+          Row(
+            //weight,height and age textFields
             children: [
-              Text('Weight:   ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-              new Flexible(child:
-              TextField(
-                controller: weightController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: weightType.text,
-                  fillColor: Colors.black,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
+              Text(
+                'Weight:   ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              new Flexible(
+                child: TextField(
+                  controller: weightController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    hintText: weightType.text,
+                    fillColor: Colors.black,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
                   ),
                 ),
               ),
-              ),
-              new Flexible(child:
-              Text('Height:   ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-
-              ),
-              new Flexible(child:
-              TextField(
-                controller: heightController,
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: heightType.text,
-                  fillColor: Colors.black,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
+              new Flexible(
+                child: Text(
+                  'Height:   ',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              ),
-              new Flexible(child:
-              Text('Age:   ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-              ),
-              new Flexible(child:
-              TextField(
-                controller: ageController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Age',
-                  fillColor: Colors.black,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
+              new Flexible(
+                child: TextField(
+                  controller: heightController,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: heightType.text,
+                    fillColor: Colors.black,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
                   ),
                 ),
               ),
+              new Flexible(
+                child: Text(
+                  'Age:   ',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              new Flexible(
+                child: TextField(
+                  controller: ageController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    hintText: 'Age',
+                    fillColor: Colors.black,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-          RaisedButton(onPressed: onPressedCalculate,
+          RaisedButton(
+            onPressed: onPressedCalculate,
             color: Colors.black,
             padding: EdgeInsets.all(10.0),
             child: //calculate button
 
-            Text(
+                Text(
               'Calculate',
-              style: TextStyle(color: Colors.white,)
-              ,),
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ),
-          Text(bmi.text,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+          Text(
+            bmi.text,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           //calculated bmi
-          Text(response.text,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-
+          Text(
+            response.text,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -215,7 +251,7 @@ class _HomeState extends State<Home> {
     // Use int.tryParse if you want to check integer only.
     // Use double.tryParse if you want to check double only.
     final number = num.tryParse(string);
-    if (number == null || number<=0) {
+    if (number == null || number <= 0) {
       return false;
     }
 
@@ -229,13 +265,16 @@ class _HomeState extends State<Home> {
     String height = heightController.text;
     String age = ageController.text;
     double bmiCalculated = 0;
-    if(!isNumericUsing_tryParse(height) || !isNumericUsing_tryParse(weight) || !isNumericUsing_tryParse(age)){//check for valid number
+    if (!isNumericUsing_tryParse(height) ||
+        !isNumericUsing_tryParse(weight) ||
+        !isNumericUsing_tryParse(age)) {
+      //check for valid number
       showAlertDialog(context);
     }
-    if (metricSystem == 'Metric') { //calculate the bmi and update the height and weight hints when changing metric system
+    if (metricSystem == 'Metric') {
+      //calculate the bmi and update the height and weight hints when changing metric system
       bmiCalculated = metricFormula();
-    }
-    else {
+    } else {
       bmiCalculated = imperialFormula();
     }
     setState(() {
@@ -274,15 +313,15 @@ class _HomeState extends State<Home> {
     //updating the hints
     await Future.delayed(Duration(milliseconds: 500));
     String metricSystem = selectedMetricSystem;
-    if (metricSystem =='Metric') { //calculate the bmi and update the height and weight hints when changing metric system
+    if (metricSystem == 'Metric') {
+      //calculate the bmi and update the height and weight hints when changing metric system
       setState(() {
         weightType.text = 'Kg';
         heightType.text = 'Cm';
         weightController.text = '';
         heightController.text = '';
       });
-    }
-    else if (metricSystem == 'Imperial') {
+    } else if (metricSystem == 'Imperial') {
       setState(() {
         weightType.text = 'Lbs';
         heightType.text = 'Inches';
@@ -291,7 +330,6 @@ class _HomeState extends State<Home> {
       });
     }
   }
-
 
   showAlertDialog(BuildContext context) {
     // Create button
@@ -320,19 +358,18 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void fillFieldsFromDB(){
-    User user=new User();
-    user.name='test';
-    user.height='test';
-    user.weight='test';
-    user.gender=selectedSex;
-    user.birthDate=DateTime(2000,12,10);
+  void fillFieldsFromDB() {
+    User user = new User();
+    user.name = 'test';
+    user.height = 'test';
+    user.weight = 'test';
+    user.gender = selectedSex;
+    user.birthDate = DateTime(2000, 12, 10);
 
     setState(() {
-      heightController.text=user.height;
-      selectedSex=user.gender;
-      ageController.text=calculateAge(user.birthDate).toString();
-
+      heightController.text = user.height;
+      selectedSex = user.gender;
+      ageController.text = calculateAge(user.birthDate).toString();
     });
   }
 
