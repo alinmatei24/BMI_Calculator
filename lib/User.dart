@@ -1,4 +1,4 @@
-class User{
+class User {
   var name;
   var height;
   var weight;

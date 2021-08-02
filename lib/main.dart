@@ -7,7 +7,7 @@ import 'package:proiect_bmi/update.dart';
 import 'User.dart';
 
 void main() {
-  if (1 == 1) {
+  if (1 == 0) {
     //to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
       home: Update(), //home page
@@ -286,14 +286,12 @@ class _HomeState extends State<Home> {
     if (selectedMetricSystem == 'Metric') {
       hintWeightType = 'Kg';
       hintHeightType = 'Cm';
-      weightController.text = '';
-      heightController.text = '';
     } else if (selectedMetricSystem == 'Imperial') {
       hintWeightType = 'Lbs';
       hintHeightType = 'Inches';
-      weightController.text = '';
-      heightController.text = '';
     }
+    weightController.text = '';
+    heightController.text = '';
   }
 
   showAlertDialog(BuildContext context) {

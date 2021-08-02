@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/main.dart';
+import 'database.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Welcome extends StatefulWidget {
   @override
@@ -13,6 +15,9 @@ class _WelcomeState extends State<Welcome> {
 
   final nameController = TextEditingController();
   final heightControler = TextEditingController();
+
+  bool canPressContinue = true;
+  bool loadingDuringRegister = false;
 
   @override
   Widget build(BuildContext context) {
@@ -137,11 +142,27 @@ class _WelcomeState extends State<Welcome> {
             ],
           ),
           ElevatedButton(
-            onPressed: onPressedContinue,
+            onPressed: canPressContinue
+                ? () async {
+                    setState(() {
+                      canPressContinue = false;
+                      loadingDuringRegister = true;
+                    });
+                    onPressedContinue();
+                  }
+                : null,
             child: Text(
               'Continue',
               style: TextStyle(
                 color: Colors.white,
+              ),
+            ),
+          ),
+          Visibility(
+            visible: loadingDuringRegister,
+            child: Center(
+              child: new CircularProgressIndicator(
+                color: Colors.orange,
               ),
             ),
           ),
@@ -174,14 +195,53 @@ class _WelcomeState extends State<Welcome> {
     return true;
   }
 
-  void onPressedContinue() {
+  Future<bool> registerUser() async {
+    await Future.delayed(Duration(seconds: 5));
+    DBClient db = DBClient();
+    try {
+      await db.createDatabase();
+      // de schimbat valoarea hardcodata 'Metric'
+      await db.insertUser(nameController.text, selectedSex, selectedDate,
+          double.parse(heightControler.text), 'Metric');
+      return true;
+    } catch (e) {
+      print("Error during user registration: " + e.toString());
+      return false;
+    }
+  }
+
+  void showToast(String msg, Color backgroundColor, Color textColor) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        fontSize: 16.0);
+  }
+
+  void onPressedContinue() async {
     //create user in db
+    bool registration = await registerUser();
+    if (registration) {
+      showToast("Registration complete", Colors.green.shade300, Colors.white);
+      //create user object
 
-    //create user object
-
-    //pass user obj to home
-    String user = 'Ion';
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => Home(user)));
+      //pass user obj to home
+      Navigator.pushAndRemoveUntil<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => Home(nameController.text),
+          ),
+          (route) => false);
+    } else {
+      showToast("An error occured during user registration. Please try again.",
+          Colors.red.shade300, Colors.white);
+      setState(() {
+        canPressContinue = true;
+        loadingDuringRegister = false;
+      });
+    }
   }
 }

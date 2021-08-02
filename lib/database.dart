@@ -10,15 +10,15 @@ class DBClient {
   late Database _db;
 
 //create and give acces to the database
-  Future create() async {
+  Future createDatabase() async {
     Directory path = await getApplicationDocumentsDirectory();
     String dbPath = join(path.path, "database.db");
 
-    _db = await openDatabase(dbPath, version: 1, onCreate: this._create);
+    _db = await openDatabase(dbPath, version: 1, onCreate: this._createTables);
   }
 
 //create the database tables
-  Future _create(Database db, int version) async {
+  Future _createTables(Database db, int version) async {
     await db.execute(
         'create table user(name primary key, sex text, birthday date, height real)');
 
@@ -31,7 +31,7 @@ class DBClient {
       double height, String heightType) async {
     await _db.rawInsert(
         'insert into user(name, sex, birthday, height) VALUES(?, ?, ?, ?)',
-        [name, sex, birthday, height]);
+        [name, sex, birthday.millisecondsSinceEpoch, height]);
   }
 
   //register a calculation
