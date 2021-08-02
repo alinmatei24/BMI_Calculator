@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'User.dart';
 
-
 class Update extends StatefulWidget {
   @override
   _UpdateState createState() => _UpdateState();
@@ -27,21 +26,29 @@ class _UpdateState extends State<Update> {
         ),
         centerTitle: true,
       ),
-      body: Column( //everything
+      body: Column(
+        //everything
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Align(
             alignment: Alignment.center,
             child: Text('Edit Profile',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,)),
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                )),
           ),
           SizedBox(height: 50), //space between items in column
           Align(
             alignment: Alignment.topLeft,
             child: Text('Name',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,)),
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                )),
           ),
-          TextField( //name
+          TextField(
+            //name
             textAlign: TextAlign.center,
             controller: nameController,
             decoration: InputDecoration(
@@ -51,29 +58,36 @@ class _UpdateState extends State<Update> {
             ),
           ),
           SizedBox(height: 30), //space between items in column
-          Row( //the row with height, date and gender
+          Row(
+            //the row with height, date and gender
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              new Flexible(child:
-              Column( //height
-                children: <Widget>[
-                  Text('Height', style: TextStyle(
-                    fontSize: 25, fontWeight: FontWeight.bold,)),
-                  TextField( //Height
-                    controller: heightController,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Height',
-                      fillColor: Colors.red,
-                      border: OutlineInputBorder(),
+              new Flexible(
+                child: Column(
+                  //height
+                  children: <Widget>[
+                    Text('Height',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        )),
+                    TextField(
+                      //Height
+                      controller: heightController,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Height',
+                        fillColor: Colors.red,
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              ),
-              new Flexible(child:
-              Column( //select date
+              new Flexible(
+                  child: Column(
+                //select date
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
@@ -87,37 +101,38 @@ class _UpdateState extends State<Update> {
                     onPressed: () => _selectDate(context), // Refer step 3
                     child: Text(
                       'Select birth date',
-                      style:
-                      TextStyle(
+                      style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     color: Colors.black,
                   ),
                 ],
-              )
-              ),
-              new Flexible(child: //select gender
-              Column(
-                children: [
-                  Text('Gender', style: TextStyle(
-                    fontSize: 25, fontWeight: FontWeight.bold,)),
-                  DropdownButton<String>(
-                    value: selectedSex,
-                    items: <String>['Male', 'Female'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: new Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedSex = newValue!;
-                      });
-                    },
-                  ),
-                ],
-              ),
-
+              )),
+              new Flexible(
+                child: //select gender
+                    Column(
+                  children: [
+                    Text('Gender',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        )),
+                    DropdownButton<String>(
+                      value: selectedSex,
+                      items: <String>['Male', 'Female'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: new Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedSex = newValue!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               )
             ],
           ),
@@ -125,25 +140,29 @@ class _UpdateState extends State<Update> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              RaisedButton(onPressed: onPressedCancel,
+              RaisedButton(
+                onPressed: onPressedCancel,
                 color: Colors.black,
                 padding: EdgeInsets.all(10.0),
                 child: //calculate button
-
-                Text(
+                    Text(
                   'Cancel',
-                  style: TextStyle(color: Colors.white,)
-                  ,),
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
-              RaisedButton(onPressed: onPressedCancel,
+              RaisedButton(
+                onPressed: onPressedCancel,
                 color: Colors.black,
                 padding: EdgeInsets.all(10.0),
                 child: //calculate button
-
-                Text(
+                    Text(
                   'Update',
-                  style: TextStyle(color: Colors.white,)
-                  ,),
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),

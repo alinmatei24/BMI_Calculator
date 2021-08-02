@@ -1,21 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:proiect_bmi/main.dart';
 
 class Welcome extends StatefulWidget {
   @override
   _WelcomeState createState() => _WelcomeState();
 }
 
-
-
 class _WelcomeState extends State<Welcome> {
   DateTime selectedDate = DateTime.now();
-  String selectedSex='Male';
-  int _value = 1;
+  String selectedSex = 'Male';
 
-  final nameController=TextEditingController();
-  final heightControler=TextEditingController();
+  final nameController = TextEditingController();
+  final heightControler = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,29 +31,46 @@ class _WelcomeState extends State<Welcome> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text('Welcome, let\'s set things up\n',style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,),),
+          Text(
+            'Welcome, let\'s set things up\n',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Row(
             children: [
-              Text('    Name    ',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
-              new Flexible(child:
-
-              TextField(
-                controller: nameController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Name',
-                  fillColor: Colors.red,
-                  border: OutlineInputBorder(),
+              Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: Text('Name:',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ))),
+              new Flexible(
+                child: TextField(
+                  controller: nameController,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    hintText: 'Name',
+                    fillColor: Colors.red,
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
               )
             ],
           ),
           Row(
             children: [
-              Text('Birth date    \n',style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
-              new Flexible(child:
-              Column(
+              Text(
+                'Birth date:',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              new Flexible(
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
@@ -66,41 +80,47 @@ class _WelcomeState extends State<Welcome> {
                   SizedBox(
                     height: 20.0,
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () => _selectDate(context), // Refer step 3
-                    child: Text(
-                      'Select date',
-                      style:
-                      TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    color: Colors.black,
+                    child: Icon(Icons.edit),
                   ),
                 ],
-              )
-              )
+              ))
             ],
           ),
           Row(
             children: [
-              Text('    Height    ',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
-              new Flexible(child:
-              TextField(
-                controller: heightControler,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Height in meters',
-                  fillColor: Colors.red,
-                  border: OutlineInputBorder(),
+              Text('Height:',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  )),
+              new Flexible(
+                child: TextFormField(
+                  controller: heightControler,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      checkNumericValue(value!) ? null : "Numar invalid",
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    hintText: 'Height in centimeters',
+                    fillColor: Colors.red,
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
               )
             ],
           ),
           Row(
             children: [
-              Text('    Select your sex    ',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
-              new Flexible(child:
-              DropdownButton<String>(
+              Text('Select your sex:',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  )),
+              new Flexible(
+                  child: DropdownButton<String>(
                 value: selectedSex,
                 items: <String>['Male', 'Female'].map((String value) {
                   return DropdownMenuItem<String>(
@@ -113,16 +133,17 @@ class _WelcomeState extends State<Welcome> {
                     selectedSex = newValue!;
                   });
                 },
-              )
-              )
+              ))
             ],
           ),
-          RaisedButton(onPressed: onPressedContinue,color: Colors.black,padding: EdgeInsets.all(10.0), child:
-
-          Text(
-            'Continue',
-            style: TextStyle(color: Colors.white,  )
-            ,),
+          ElevatedButton(
+            onPressed: onPressedContinue,
+            child: Text(
+              'Continue',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -141,5 +162,26 @@ class _WelcomeState extends State<Welcome> {
         selectedDate = picked;
       });
   }
-  void onPressedContinue(){}
+
+  bool checkNumericValue(String string) {
+    if (string.isEmpty) {
+      return true;
+    }
+    final number = num.tryParse(string);
+    if (number == null || number <= 0) {
+      return false;
+    }
+    return true;
+  }
+
+  void onPressedContinue() {
+    //create user in db
+
+    //create user object
+
+    //pass user obj to home
+    String user = 'Ion';
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => Home(user)));
+  }
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
@@ -8,37 +7,36 @@ import 'package:proiect_bmi/update.dart';
 import 'User.dart';
 
 void main() {
-  if (1 == 0) {
+  if (1 == 1) {
     //to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
       home: Update(), //home page
     ));
   } else {
     runApp(MaterialApp(
-      home: Home(), //welcome page
+      home: Welcome(), //welcome page
     ));
   }
 }
 
 class Home extends StatefulWidget {
+  Home(this.user);
+  final String user;
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  DateTime selectedDate = DateTime.now();
-
-  final heightType = TextEditingController(text: 'Cm');
-  final weightType = TextEditingController(text: 'Kg');
+  String hintHeightType = 'Cm';
+  String hintWeightType = 'Kg';
   String selectedSex = 'Male';
   String selectedMetricSystem = 'Metric';
-  final bmi = TextEditingController(text: '0');
-  final response = TextEditingController(text: '');
+  String response = '';
+  double bmi = 0;
+
   final weightController = TextEditingController();
   final heightController = TextEditingController();
   final ageController = TextEditingController();
-  final hintHeightController = AutofillHints;
-  int _value = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +56,6 @@ class _HomeState extends State<Home> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Row(
-            //sex and metric system buttons
             children: [
               Text(
                 'Sex:  ',
@@ -81,13 +78,15 @@ class _HomeState extends State<Home> {
                   });
                 },
               ),
-              Text(
-                '  Metric System:    ',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  child: Text(
+                    'Metric System:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )),
               new Flexible(
                   child: DropdownButton<String>(
                 value: selectedMetricSystem,
@@ -98,16 +97,15 @@ class _HomeState extends State<Home> {
                   );
                 }).toList(),
                 onChanged: (newValue) {
-                  updateHints();
                   setState(() {
                     selectedMetricSystem = newValue!;
+                    updateHints();
                   });
                 },
               ))
             ],
           ),
           Row(
-            //weight,height and age textFields
             children: [
               Text(
                 'Weight:   ',
@@ -117,12 +115,15 @@ class _HomeState extends State<Home> {
                 ),
               ),
               new Flexible(
-                child: TextField(
+                child: TextFormField(
                   controller: weightController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      checkNumericValue(value!) ? null : "Numar invalid",
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    hintText: weightType.text,
+                    hintText: hintWeightType,
                     fillColor: Colors.black,
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black),
@@ -146,12 +147,15 @@ class _HomeState extends State<Home> {
                 ),
               ),
               new Flexible(
-                child: TextField(
+                child: TextFormField(
                   controller: heightController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      checkNumericValue(value!) ? null : "Numar invalid",
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: heightType.text,
+                    hintText: hintHeightType,
                     fillColor: Colors.black,
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black),
@@ -175,8 +179,11 @@ class _HomeState extends State<Home> {
                 ),
               ),
               new Flexible(
-                child: TextField(
+                child: TextFormField(
                   controller: ageController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      checkNumericValue(value!) ? null : "Numar invalid",
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -196,12 +203,11 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
-          RaisedButton(
+          ElevatedButton(
             onPressed: onPressedCalculate,
-            color: Colors.black,
-            padding: EdgeInsets.all(10.0),
+            style: ElevatedButton.styleFrom(
+                primary: Colors.black, padding: EdgeInsets.all(10.0)),
             child: //calculate button
-
                 Text(
               'Calculate',
               style: TextStyle(
@@ -210,7 +216,7 @@ class _HomeState extends State<Home> {
             ),
           ),
           Text(
-            bmi.text,
+            bmi != 0 ? bmi.toStringAsFixed(1) : '',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -218,7 +224,7 @@ class _HomeState extends State<Home> {
           ),
           //calculated bmi
           Text(
-            response.text,
+            response,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -229,111 +235,70 @@ class _HomeState extends State<Home> {
     );
   }
 
-  double metricFormula() {
+  double calculateBMI() {
     double weight = double.parse(weightController.text);
     double height = double.parse(heightController.text);
-    return (weight / height / height) * 10000;
+    return (weight / height / height) *
+        (selectedMetricSystem == 'Metric' ? 10000 : 703);
   }
 
-  double imperialFormula() {
-    double weight = double.parse(weightController.text);
-    double height = double.parse(heightController.text);
-    return (weight / (height * height)) * 703;
-  }
-
-  bool isNumericUsing_tryParse(String string) {
-    // Null or empty string is not a number
-    if (string == null || string.isEmpty) {
-      return false;
+  bool checkNumericValue(String string) {
+    if (string.isEmpty) {
+      return true;
     }
-    // Try to parse input string to number.
-    // Both integer and double work.
-    // Use int.tryParse if you want to check integer only.
-    // Use double.tryParse if you want to check double only.
     final number = num.tryParse(string);
     if (number == null || number <= 0) {
       return false;
     }
-
     return true;
   }
 
   void onPressedCalculate() {
-    String metricSystem = selectedMetricSystem;
-    String sex = selectedSex;
-    String weight = weightController.text;
-    String height = heightController.text;
-    String age = ageController.text;
-    double bmiCalculated = 0;
-    if (!isNumericUsing_tryParse(height) ||
-        !isNumericUsing_tryParse(weight) ||
-        !isNumericUsing_tryParse(age)) {
+    if (!checkNumericValue(heightController.text) ||
+        !checkNumericValue(weightController.text) ||
+        !checkNumericValue(ageController.text)) {
       //check for valid number
       showAlertDialog(context);
-    }
-    if (metricSystem == 'Metric') {
-      //calculate the bmi and update the height and weight hints when changing metric system
-      bmiCalculated = metricFormula();
     } else {
-      bmiCalculated = imperialFormula();
+      bmi = calculateBMI();
+      response = getResponse();
+      setState(() {});
     }
-    setState(() {
-      bmi.text = bmiCalculated.toStringAsFixed(1);
-    });
-    getResponse();
   }
 
-  void getResponse() {
-    double bmiTest = double.parse(bmi.text);
-    String s = '';
-    if (bmiTest < 18.5) {
-      s = 'You are underweight!';
-    } else if (bmiTest >= 18.5 && bmiTest < 25) {
-      s = 'You have a normal weight!';
-    } else if (bmiTest >= 25 && bmiTest < 30) {
-      s = 'You are overweight!';
-    } else if (bmiTest >= 30 && bmiTest < 35) {
-      s = 'You are class I obese!';
-    } else if (bmiTest >= 35 && bmiTest < 40) {
-      s = 'You are class II obese!';
-    } else if (bmiTest >= 40) {
-      s = 'You are class III obese!';
+  String getResponse() {
+    if (bmi < 18.5) {
+      return 'You are underweight!';
+    } else if (bmi >= 18.5 && bmi < 25) {
+      return 'You have a normal weight!';
+    } else if (bmi >= 25 && bmi < 30) {
+      return 'You are overweight!';
+    } else if (bmi >= 30 && bmi < 35) {
+      return 'You are class I obese!';
+    } else if (bmi >= 35 && bmi < 40) {
+      return 'You are class II obese!';
+    } else {
+      return 'You are class III obese!';
     }
-    setState(() {
-      response.text = s;
-    });
   }
 
-  Future sleep1() {
-    //for sleeping
-    return new Future.delayed(const Duration(milliseconds: 1), () => "1");
-  }
-
-  Future<void> updateHints() async {
-    //updating the hints
-    await Future.delayed(Duration(milliseconds: 500));
-    String metricSystem = selectedMetricSystem;
-    if (metricSystem == 'Metric') {
-      //calculate the bmi and update the height and weight hints when changing metric system
-      setState(() {
-        weightType.text = 'Kg';
-        heightType.text = 'Cm';
-        weightController.text = '';
-        heightController.text = '';
-      });
-    } else if (metricSystem == 'Imperial') {
-      setState(() {
-        weightType.text = 'Lbs';
-        heightType.text = 'Inches';
-        weightController.text = '';
-        heightController.text = '';
-      });
+  void updateHints() {
+    if (selectedMetricSystem == 'Metric') {
+      hintWeightType = 'Kg';
+      hintHeightType = 'Cm';
+      weightController.text = '';
+      heightController.text = '';
+    } else if (selectedMetricSystem == 'Imperial') {
+      hintWeightType = 'Lbs';
+      hintHeightType = 'Inches';
+      weightController.text = '';
+      heightController.text = '';
     }
   }
 
   showAlertDialog(BuildContext context) {
     // Create button
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: Text("OK"),
       onPressed: () {
         Navigator.of(context).pop();
@@ -369,24 +334,7 @@ class _HomeState extends State<Home> {
     setState(() {
       heightController.text = user.height;
       selectedSex = user.gender;
-      ageController.text = calculateAge(user.birthDate).toString();
+      //ageController.text = calculateAge(user.birthDate).toString();
     });
-  }
-
-  calculateAge(DateTime birthDate) {
-    DateTime currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    int month1 = currentDate.month;
-    int month2 = birthDate.month;
-    if (month2 > month1) {
-      age--;
-    } else if (month1 == month2) {
-      int day1 = currentDate.day;
-      int day2 = birthDate.day;
-      if (day2 > day1) {
-        age--;
-      }
-    }
-    return age;
   }
 }
