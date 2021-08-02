@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'User.dart';
+
 
 class Update extends StatefulWidget {
   @override
@@ -9,9 +11,9 @@ class Update extends StatefulWidget {
 
 class _UpdateState extends State<Update> {
   DateTime selectedDate = DateTime.now();
-  String selectedSex='Male';
-  final nameController=TextEditingController();
-  final heightController=TextEditingController();
+  String selectedSex = 'Male';
+  final nameController = TextEditingController();
+  final heightController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,122 +27,127 @@ class _UpdateState extends State<Update> {
         ),
         centerTitle: true,
       ),
-      body: Column(//everything
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Align(
+      body: Column( //everything
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Align(
             alignment: Alignment.center,
-            child:Text('Edit Profile',style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,)),
+            child: Text('Edit Profile',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,)),
+          ),
+          SizedBox(height: 50), //space between items in column
+          Align(
+            alignment: Alignment.topLeft,
+            child: Text('Name',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,)),
+          ),
+          TextField( //name
+            textAlign: TextAlign.center,
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: 'Name',
+              fillColor: Colors.red,
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 50),//space between items in column
-            Align(
-              alignment: Alignment.topLeft,
-              child:Text('Name',style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,)),
-            ),
-            TextField(//name
-              textAlign: TextAlign.center,
-              controller: nameController,
-              decoration: InputDecoration(
-                hintText: 'Name',
-                fillColor: Colors.red,
-                border: OutlineInputBorder(),
+          ),
+          SizedBox(height: 30), //space between items in column
+          Row( //the row with height, date and gender
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              new Flexible(child:
+              Column( //height
+                children: <Widget>[
+                  Text('Height', style: TextStyle(
+                    fontSize: 25, fontWeight: FontWeight.bold,)),
+                  TextField( //Height
+                    controller: heightController,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Height',
+                      fillColor: Colors.red,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 30),//space between items in column
-            Row(//the row with height, date and gender
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                new Flexible(child:
-                Column(//height
-                  children: <Widget>[
-                    Text('Height',style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,)),
-                    TextField(//Height
-                      controller: heightController,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'Height',
-                        fillColor: Colors.red,
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ],
-                ),
-                ),
-                new Flexible(child:
-                Column(//select date
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      "${selectedDate.toLocal()}".split(' ')[0],
-                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    RaisedButton(
-                      onPressed: () => _selectDate(context), // Refer step 3
-                      child: Text(
-                        'Select birth date',
-                        style:
-                        TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      color: Colors.black,
-                    ),
-                  ],
-                )
-                ),
-                new Flexible(child://select gender
-                Column(
-                  children: [
-                    Text('Gender',style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,)),
-                    DropdownButton<String>(
-                      value: selectedSex,
-                      items: <String>['Male', 'Female'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: new Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedSex = newValue!;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-
-                )
-              ],
-            ),
-            SizedBox(height: 30),//space between items in column
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                RaisedButton(onPressed: onPressedCancel,
-                  color: Colors.black,
-                  padding: EdgeInsets.all(10.0),
-                  child: //calculate button
-
+              ),
+              new Flexible(child:
+              Column( //select date
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
                   Text(
-                    'Cancel',
-                    style: TextStyle(color: Colors.white,)
-                    ,),
-                ),
-                RaisedButton(onPressed: onPressedUpdate,
-                  color: Colors.black,
-                  padding: EdgeInsets.all(10.0),
-                  child: //calculate button
+                    "${selectedDate.toLocal()}".split(' ')[0],
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  RaisedButton(
+                    onPressed: () => _selectDate(context), // Refer step 3
+                    child: Text(
+                      'Select birth date',
+                      style:
+                      TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    color: Colors.black,
+                  ),
+                ],
+              )
+              ),
+              new Flexible(child: //select gender
+              Column(
+                children: [
+                  Text('Gender', style: TextStyle(
+                    fontSize: 25, fontWeight: FontWeight.bold,)),
+                  DropdownButton<String>(
+                    value: selectedSex,
+                    items: <String>['Male', 'Female'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: new Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedSex = newValue!;
+                      });
+                    },
+                  ),
+                ],
+              ),
 
-                  Text(
-                    'Update',
-                    style: TextStyle(color: Colors.white,)
-                    ,),
-                ),
-              ],
-            ),
-          ],
+              )
+            ],
+          ),
+          SizedBox(height: 30), //space between items in column
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              RaisedButton(onPressed: onPressedCancel,
+                color: Colors.black,
+                padding: EdgeInsets.all(10.0),
+                child: //calculate button
+
+                Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white,)
+                  ,),
+              ),
+              RaisedButton(onPressed: onPressedCancel,
+                color: Colors.black,
+                padding: EdgeInsets.all(10.0),
+                child: //calculate button
+
+                Text(
+                  'Update',
+                  style: TextStyle(color: Colors.white,)
+                  ,),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -158,6 +165,23 @@ class _UpdateState extends State<Update> {
         print(picked);
       });
   }
-  void onPressedUpdate(){}
-  void onPressedCancel(){}
+
+  void onPressedUpdate() {}
+
+  void onPressedCancel() {}
+
+  void fillFieldsFromDataBase() {
+    User user = new User();
+    user.name = 'test';
+    user.height = 'test';
+    user.weight = 'test';
+    user.gender = selectedSex;
+    user.birthDate = DateTime(2000, 12, 10);
+    setState(() {
+      nameController.text = user.name;
+      heightController.text = user.height;
+      selectedSex = user.gender;
+      selectedDate = user.birthDate;
+    });
+  }
 }

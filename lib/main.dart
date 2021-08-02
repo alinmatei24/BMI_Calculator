@@ -11,7 +11,7 @@ void main() {
 
   if(1==1) {//to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
-      home: Home(),//home page
+      home: Update(),//home page
     ));
   }else{
     runApp(MaterialApp(
@@ -318,5 +318,38 @@ class _HomeState extends State<Home> {
         return alert;
       },
     );
+  }
+
+  void fillFieldsFromDB(){
+    User user=new User();
+    user.name='test';
+    user.height='test';
+    user.weight='test';
+    user.gender=selectedSex;
+    user.birthDate=DateTime(2000,12,10);
+
+    setState(() {
+      heightController.text=user.height;
+      selectedSex=user.gender;
+      ageController.text=calculateAge(user.birthDate).toString();
+
+    });
+  }
+
+  calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    int month1 = currentDate.month;
+    int month2 = birthDate.month;
+    if (month2 > month1) {
+      age--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = birthDate.day;
+      if (day2 > day1) {
+        age--;
+      }
+    }
+    return age;
   }
 }
