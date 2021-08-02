@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
+import 'package:proiect_bmi/update.dart';
 
 void main() {
 
-  if(1==1) {//to check if is first time opening app(probavly a check if is something in teh database or cache memory, idk :)))
+  if(1==1) {//to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
-      home: Home(),//home page
+      home: Update(),//home page
     ));
   }else{
     runApp(MaterialApp(

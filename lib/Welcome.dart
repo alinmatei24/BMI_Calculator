@@ -11,10 +11,11 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   DateTime selectedDate = DateTime.now();
-
   String selectedSex='Male';
-
   int _value = 1;
+
+  final nameController=TextEditingController();
+  final heightControler=TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +41,10 @@ class _WelcomeState extends State<Welcome> {
               new Flexible(child:
 
               TextField(
+                controller: nameController,
+                textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: 'maai',
+                  hintText: 'Name',
                   fillColor: Colors.red,
                   border: OutlineInputBorder(),
                 ),
@@ -82,6 +85,8 @@ class _WelcomeState extends State<Welcome> {
               Text('    Height    ',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
               new Flexible(child:
               TextField(
+                controller: heightControler,
+                textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   hintText: 'Height in meters',
                   fillColor: Colors.red,
@@ -129,7 +134,7 @@ class _WelcomeState extends State<Welcome> {
       context: context,
       initialDate: selectedDate, // Refer step 1
       firstDate: DateTime(1900),
-      lastDate: DateTime(2000),
+      lastDate: DateTime(2025),
     );
     if (picked != null && picked != selectedDate)
       setState(() {
