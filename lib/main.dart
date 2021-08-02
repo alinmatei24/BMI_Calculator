@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
 import 'package:proiect_bmi/update.dart';
 
+import 'User.dart';
+
 void main() {
 
   if(1==1) {//to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
-      home: Update(),//home page
+      home: Home(),//home page
     ));
   }else{
     runApp(MaterialApp(
@@ -203,6 +205,23 @@ class _HomeState extends State<Home> {
     return (weight / (height * height)) * 703;
   }
 
+  bool isNumericUsing_tryParse(String string) {
+    // Null or empty string is not a number
+    if (string == null || string.isEmpty) {
+      return false;
+    }
+    // Try to parse input string to number.
+    // Both integer and double work.
+    // Use int.tryParse if you want to check integer only.
+    // Use double.tryParse if you want to check double only.
+    final number = num.tryParse(string);
+    if (number == null || number<=0) {
+      return false;
+    }
+
+    return true;
+  }
+
   void onPressedCalculate() {
     String metricSystem = selectedMetricSystem;
     String sex = selectedSex;
@@ -210,16 +229,10 @@ class _HomeState extends State<Home> {
     String height = heightController.text;
     String age = ageController.text;
     double bmiCalculated = 0;
-    if (weight == '' || height == '' || age == '' || weight == '0' ||
-        height == '0' || age == '0') {
-      print('au');
-
+    if(!isNumericUsing_tryParse(height) || !isNumericUsing_tryParse(weight) || !isNumericUsing_tryParse(age)){//check for valid number
       showAlertDialog(context);
-      return;
     }
-
-    if (metricSystem ==
-        'Metric') { //calculate the bmi and update the height and weight hints when changing metric system
+    if (metricSystem == 'Metric') { //calculate the bmi and update the height and weight hints when changing metric system
       bmiCalculated = metricFormula();
     }
     else {
@@ -235,7 +248,7 @@ class _HomeState extends State<Home> {
     double bmiTest = double.parse(bmi.text);
     String s = '';
     if (bmiTest < 18.5) {
-      s = 'You are underweght!';
+      s = 'You are underweight!';
     } else if (bmiTest >= 18.5 && bmiTest < 25) {
       s = 'You have a normal weight!';
     } else if (bmiTest >= 25 && bmiTest < 30) {
