@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'User.dart';
+import 'main.dart';
 
 class Update extends StatefulWidget {
+  Update(this.user);
+  final User user;
   @override
   _UpdateState createState() => _UpdateState();
 }
@@ -11,8 +14,16 @@ class Update extends StatefulWidget {
 class _UpdateState extends State<Update> {
   DateTime selectedDate = DateTime.now();
   String selectedSex = 'Male';
+  String selectedMetricSystem = 'Metric';
   final nameController = TextEditingController();
   final heightController = TextEditingController();
+  String hintHeightType = 'Cm';
+
+  @override
+  void initState() {
+    fillFieldsFromDataBase();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +50,58 @@ class _UpdateState extends State<Update> {
                 )),
           ),
           SizedBox(height: 50), //space between items in column
-          Align(
-            alignment: Alignment.topLeft,
-            child: Text('Name',
+          Row(
+            children: [
+              new Flexible(child:
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text('Name',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
+                  TextField(
+                    //name
+                    textAlign: TextAlign.center,
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Name',
+                      fillColor: Colors.red,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+              ),
+              new Flexible(child:
+              Text(
+                'Select Metric System:',
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
-                )),
-          ),
-          TextField(
-            //name
-            textAlign: TextAlign.center,
-            controller: nameController,
-            decoration: InputDecoration(
-              hintText: 'Name',
-              fillColor: Colors.red,
-              border: OutlineInputBorder(),
-            ),
+                ),
+              ),
+              ),
+              new Flexible(
+                  child: DropdownButton<String>(
+                    value: selectedMetricSystem,
+                    items: <String>['Metric', 'Imperial'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: new Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedMetricSystem = newValue!;
+                        updateHints();
+                      });
+                    },
+                  )),
+            ],
           ),
           SizedBox(height: 30), //space between items in column
           Row(
@@ -71,13 +117,15 @@ class _UpdateState extends State<Update> {
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
                         )),
-                    TextField(
-                      //Height
+                    TextFormField(
                       controller: heightController,
-                      textAlign: TextAlign.center,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) =>
+                      checkNumericValue(value!) ? null : "Number invalid",
                       keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        hintText: 'Height',
+                        hintText: hintHeightType,
                         fillColor: Colors.red,
                         border: OutlineInputBorder(),
                       ),
@@ -97,14 +145,15 @@ class _UpdateState extends State<Update> {
                   SizedBox(
                     height: 20.0,
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () => _selectDate(context), // Refer step 3
+                    style: ElevatedButton.styleFrom(
+                    primary: Colors.black,),
                     child: Text(
                       'Select birth date',
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                    color: Colors.black,
                   ),
                 ],
               )),
@@ -140,10 +189,10 @@ class _UpdateState extends State<Update> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 onPressed: onPressedCancel,
-                color: Colors.black,
-                padding: EdgeInsets.all(10.0),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
                 child: //calculate button
                     Text(
                   'Cancel',
@@ -152,10 +201,10 @@ class _UpdateState extends State<Update> {
                   ),
                 ),
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: onPressedCancel,
-                color: Colors.black,
-                padding: EdgeInsets.all(10.0),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
                 child: //calculate button
                     Text(
                   'Update',
@@ -187,20 +236,47 @@ class _UpdateState extends State<Update> {
 
   void onPressedUpdate() {}
 
-  void onPressedCancel() {}
+  void onPressedCancel() {
+    Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => Home(widget.user),
+        ),
+            (route) => false);
+  }
 
   void fillFieldsFromDataBase() {
-    User user = new User();
-    user.name = 'test';
-    user.height = 'test';
-    user.weight = 'test';
-    user.gender = selectedSex;
-    user.birthDate = DateTime(2000, 12, 10);
     setState(() {
-      nameController.text = user.name;
-      heightController.text = user.height;
-      selectedSex = user.gender;
-      selectedDate = user.birthDate;
+      nameController.text = widget.user.name;
+      selectedSex = widget.user.gender;
+      selectedMetricSystem=widget.user.metric;
+      selectedDate = widget.user.birthDate;
+      if(selectedMetricSystem=='Metric'){
+        heightController.text = widget.user.height;
+      }else{
+        heightController.text = (double.parse(widget.user.height)/2.54).toStringAsFixed(0).toString();
+      }
     });
   }
+
+  void updateHints() {
+    if (selectedMetricSystem == 'Metric') {
+      hintHeightType = 'Cm';
+    } else if (selectedMetricSystem == 'Imperial') {
+      hintHeightType = 'Inches';
+    }
+    heightController.text = '';
+  }
+
+  bool checkNumericValue(String string) {
+    if (string.isEmpty) {
+      return true;
+    }
+    final number = num.tryParse(string);
+    if (number == null || number <= 0) {
+      return false;
+    }
+    return true;
+  }
+
 }

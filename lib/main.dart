@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
@@ -7,21 +8,21 @@ import 'package:proiect_bmi/update.dart';
 import 'User.dart';
 
 void main() {
-  if (1 == 0) {
+  if (1 == 1) {
     //to check if is first time opening app(probably a check if is something in teh database or cache memory, idk :)))
     runApp(MaterialApp(
-      home: Update(), //home page
+      home: Home(_HomeState().getCurrentUser()), //home page
     ));
   } else {
     runApp(MaterialApp(
-      home: Welcome(), //welcome page
+      home: Update(_HomeState().getCurrentUser()), //welcome page
     ));
   }
 }
 
 class Home extends StatefulWidget {
   Home(this.user);
-  final String user;
+  final User user;
   @override
   _HomeState createState() => _HomeState();
 }
@@ -33,10 +34,15 @@ class _HomeState extends State<Home> {
   String selectedMetricSystem = 'Metric';
   String response = '';
   double bmi = 0;
-
   final weightController = TextEditingController();
   final heightController = TextEditingController();
   final ageController = TextEditingController();
+
+  @override
+  void initState() {
+    fillFieldsFromDB();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +64,7 @@ class _HomeState extends State<Home> {
           Row(
             children: [
               Text(
-                'Sex:  ',
+                'Gender:  ',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -183,7 +189,7 @@ class _HomeState extends State<Home> {
                   controller: ageController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
-                      checkNumericValue(value!) ? null : "Numar invalid",
+                      checkNumericValue(value!) ? null : "Number invalid",
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -230,6 +236,18 @@ class _HomeState extends State<Home> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          ElevatedButton(
+            onPressed: onPressUpdate,
+            style: ElevatedButton.styleFrom(
+                primary: Colors.black, padding: EdgeInsets.all(10.0)),
+            child: //calculate button
+            Text(
+              'Update',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -253,7 +271,7 @@ class _HomeState extends State<Home> {
     return true;
   }
 
-  void onPressedCalculate() {
+  void onPressedCalculate() {// to do save in db
     if (!checkNumericValue(heightController.text) ||
         !checkNumericValue(weightController.text) ||
         !checkNumericValue(ageController.text)) {
@@ -287,11 +305,12 @@ class _HomeState extends State<Home> {
       hintWeightType = 'Kg';
       hintHeightType = 'Cm';
     } else if (selectedMetricSystem == 'Imperial') {
+
       hintWeightType = 'Lbs';
       hintHeightType = 'Inches';
     }
-    weightController.text = '';
-    heightController.text = '';
+    weightController.text='';
+    heightController.text='';
   }
 
   showAlertDialog(BuildContext context) {
@@ -321,18 +340,30 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void fillFieldsFromDB() {
-    User user = new User();
-    user.name = 'test';
-    user.height = 'test';
-    user.weight = 'test';
-    user.gender = selectedSex;
-    user.birthDate = DateTime(2000, 12, 10);
-
+  void fillFieldsFromDB() {//asta o apelez inainte la loading la pagina
     setState(() {
-      heightController.text = user.height;
-      selectedSex = user.gender;
-      //ageController.text = calculateAge(user.birthDate).toString();
+      selectedMetricSystem=widget.user.metric;
+      if(selectedMetricSystem=='Metric'){
+        heightController.text = widget.user.height;
+      }else{
+        heightController.text= (double.parse(widget.user.height)/2.54).toStringAsFixed(0).toString();
+      }
+      selectedSex = widget.user.gender;
+      ageController.text =(DateTime.now().difference(widget.user.birthDate).inDays / 365).toStringAsFixed(0).toString();
     });
+  }
+
+  User getCurrentUser() {//aici in trebe sa luam user din db ca metoda asta se apeleaza cand se creaza pagina)
+    User user=new User('Andrei','165',DateTime(1922, 11, 12),'Male', 'Metric');//asa trebe sa arate datele din db/user
+    return user;
+  }
+
+  void onPressUpdate(){ //inca nu am folosit
+    Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => Update(widget.user),
+        ),
+            (route) => false);
   }
 }

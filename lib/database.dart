@@ -6,10 +6,12 @@ import 'BMI.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'User.dart';
+
 class DBClient {
   late Database _db;
 
-//create and give acces to the database
+//create and give access to the database
   Future createDatabase() async {
     Directory path = await getApplicationDocumentsDirectory();
     String dbPath = join(path.path, "database.db");
@@ -20,7 +22,7 @@ class DBClient {
 //create the database tables
   Future _createTables(Database db, int version) async {
     await db.execute(
-        'create table user(name primary key, sex text, birthday date, height real)');
+        'create table user(name primary key, sex text, birthday date, height real, metric text)');
 
     await db.execute(
         'create table history(calc_date date, weight real, result real)');
@@ -30,7 +32,7 @@ class DBClient {
   Future<void> insertUser(String name, String sex, DateTime birthday,
       double height, String heightType) async {
     await _db.rawInsert(
-        'insert into user(name, sex, birthday, height) VALUES(?, ?, ?, ?)',
+        'insert into user(name, sex, birthday, height, metric) VALUES(?, ?, ?, ?, ?)',
         [name, sex, birthday.millisecondsSinceEpoch, height]);
   }
 
@@ -43,7 +45,7 @@ class DBClient {
 
   Future<List<BMI>> getHistory() async {
     try {
-      List<Map> results = await _db.rawQuery('select * from history"');
+      List<Map> results = await _db.rawQuery('select * from history');
       // ignore: non_constant_identifier_names
       List<BMI> BMIs = [];
       results.forEach((result) {
@@ -56,7 +58,7 @@ class DBClient {
       return BMIs;
     } catch (e) {
       print(e);
-      throw Exception("An error occured!");
+      throw Exception("An error occurred!");
     }
   }
 }

@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/main.dart';
+import 'User.dart';
 import 'database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -12,13 +15,16 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   DateTime selectedDate = DateTime.now();
   String selectedSex = 'Male';
+  String selectedMetricSystem = 'Metric';
 
   final nameController = TextEditingController();
   final heightControler = TextEditingController();
-
+  String hintHeightType = 'Cm';
   bool canPressContinue = true;
   bool loadingDuringRegister = false;
 
+
+  User user=new User(null,null,null,null,null);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,21 +111,45 @@ class _WelcomeState extends State<Welcome> {
                   controller: heightControler,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
-                      checkNumericValue(value!) ? null : "Numar invalid",
+                      checkNumericValue(value!) ? null : "Number invalid",
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    hintText: 'Height in centimeters',
+                    hintText: hintHeightType,
                     fillColor: Colors.red,
                     border: OutlineInputBorder(),
                   ),
                 ),
-              )
+              ),
+              new Flexible(
+                  child:
+                  Text('Select your gender:',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  ),
+              new Flexible(
+                  child: DropdownButton<String>(
+                    value: selectedMetricSystem,
+                    items: <String>['Metric', 'Imperial'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: new Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedMetricSystem = newValue!;
+                        updateHints();
+                      });
+                    },
+                  )),
             ],
           ),
           Row(
             children: [
-              Text('Select your sex:',
+              Text('Select your gender:',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -196,13 +226,13 @@ class _WelcomeState extends State<Welcome> {
   }
 
   Future<bool> registerUser() async {
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 1));
     DBClient db = DBClient();
     try {
       await db.createDatabase();
-      // de schimbat valoarea hardcodata 'Metric'
       await db.insertUser(nameController.text, selectedSex, selectedDate,
-          double.parse(heightControler.text), 'Metric');
+          double.parse(heightControler.text), selectedMetricSystem);
+          user=new User(nameController.text, heightControler.text, selectedDate, selectedSex, selectedMetricSystem);
       return true;
     } catch (e) {
       print("Error during user registration: " + e.toString());
@@ -232,16 +262,25 @@ class _WelcomeState extends State<Welcome> {
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(nameController.text),
+            builder: (BuildContext context) => Home(user),
           ),
           (route) => false);
     } else {
-      showToast("An error occured during user registration. Please try again.",
+      showToast("An error occurred during user registration. Please try again.",
           Colors.red.shade300, Colors.white);
       setState(() {
         canPressContinue = true;
         loadingDuringRegister = false;
       });
     }
+  }
+
+  void updateHints() {
+    if (selectedMetricSystem == 'Metric') {
+      hintHeightType = 'Cm';
+    } else if (selectedMetricSystem == 'Imperial') {
+      hintHeightType = 'Inches';
+    }
+    heightControler.text = '';
   }
 }
