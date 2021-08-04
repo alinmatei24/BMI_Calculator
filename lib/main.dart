@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
 import 'package:proiect_bmi/update.dart';
+import 'package:fl_chart/fl_chart.dart';
 
+
+import 'BMI.dart';
 import 'User.dart';
 
 void main() {
@@ -28,6 +32,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final List<FlSpot> kg=[];
+
   String hintHeightType = 'Cm';
   String hintWeightType = 'Kg';
   String selectedSex = 'Male';
@@ -43,6 +49,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     fillFieldsFromDB();
+    chart();
     super.initState();
   }
 
@@ -58,7 +65,8 @@ class _HomeState extends State<Home> {
         ),
         centerTitle: true,
       ),
-      body: Column(
+      body:
+    Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -265,8 +273,35 @@ class _HomeState extends State<Home> {
             color: Colors.black,
           ),
           ),
+          Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(20),
+                width: 500,
+                height: 300,
+                child: LineChart(
+                  LineChartData(
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: kg,
+                        isCurved: true,
+                        barWidth: 3,
+                        colors: [
+                          Colors.red,
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
         ],
       ),
+
+
     );
   }
 
@@ -512,6 +547,25 @@ class _HomeState extends State<Home> {
             (selectedMetricSystem == 'Metric' ? 10000 : 703);
       }
       return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }
+  }
+  //test only
+
+  void chart(){
+    List<BMI> bmiList=[];
+    bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:99,result: 36.4));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:96,result:34.1));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 6, 12),weight:92,result:33.6));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 6, 12),weight:89,result:31.8));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 7, 12),weight:87,result:30.6));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 7, 12),weight:85,result:29.5));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 8, 12),weight:83,result:28.7));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 9, 12),weight:78,result:26.3));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 10, 12),weight:75,result:24.2));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 11, 12),weight:68,result:22.0));
+
+    for(int i=0;i<10;i++){
+      kg.add(FlSpot(bmiList[i].result,bmiList[i].weight));
     }
   }
 }
