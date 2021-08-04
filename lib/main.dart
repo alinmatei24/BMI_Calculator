@@ -38,6 +38,8 @@ class _HomeState extends State<Home> {
   final heightController = TextEditingController();
   final ageController = TextEditingController();
 
+  final classification=TextEditingController(text: '');
+
   @override
   void initState() {
     fillFieldsFromDB();
@@ -248,6 +250,21 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
+          const Divider(
+            color: Colors.black,
+            height: 25,
+            thickness: 2,
+            indent: 5,
+            endIndent: 5,
+          ),
+          Text(
+          classification.text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.black,
+          ),
+          ),
         ],
       ),
     );
@@ -275,13 +292,15 @@ class _HomeState extends State<Home> {
     if (!checkNumericValue(heightController.text) ||
         !checkNumericValue(weightController.text) ||
         !checkNumericValue(ageController.text)) {
+        classification.text='';
       //check for valid number
       showAlertDialog(context);
     } else {
       bmi = calculateBMI();
       response = getResponse();
-      setState(() {});
+      classificationString();
     }
+    setState(() {});
   }
 
   String getResponse() {
@@ -365,5 +384,134 @@ class _HomeState extends State<Home> {
           builder: (BuildContext context) => Update(widget.user),
         ),
             (route) => false);
+  }
+
+  void classificationString(){
+      classification.text='Underweight: 18.5 and under --> ' + toUnderweight() + '\n'
+          'Normal Weight:18.6 24.9 --> '+toNormalWeight() + '\n'
+          'Overweight: 25-29.9 -->  '+ toOverWeight() + '\n'
+          'Class I Obese:30-34.9 -->  '+ toClassIObese() + '\n'
+          'Class II Obese:35-39.9 -->  '+ toClassIIObese() + '\n'
+          'Class III Obese:40 and above -->  '+ toClassIIIObese();
+  }
+
+  String toUnderweight(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>=18.5){
+      while(a>=18.5){
+        weight-=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return ((double.parse(weightController.text))-weight).toStringAsFixed(1)+' '+hintWeightType+' to lose';
+    }else{
+      return 'You are here';
+    }
+  }
+
+  String toNormalWeight(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>24.9){
+      while(a>24.9){
+        weight-=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return ((double.parse(weightController.text))-weight).toStringAsFixed(1)+' '+hintWeightType+' to lose';
+    }else if(a<18.5){
+      while (a<18.5){
+        weight+=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }else{
+      return 'You are here';
+    }
+  }
+  String toOverWeight(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>29.9){
+      while(a>29.9){
+        weight-=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return ((double.parse(weightController.text))-weight).toStringAsFixed(1)+' '+hintWeightType+' to lose';
+    }else if(a<25){
+      while (a<25){
+        weight+=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }else{
+      return 'You are here';
+    }
+  }
+  String toClassIObese(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>34.9){
+      while(a>34.9){
+        weight-=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return ((double.parse(weightController.text))-weight).toStringAsFixed(1)+' '+hintWeightType+' to lose';
+    }else if(a<30){
+      while (a<30){
+        weight+=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }else{
+      return 'You are here';
+    }
+  }
+  String toClassIIObese(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>39.9){
+      while(a>39.9){
+        weight-=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return ((double.parse(weightController.text))-weight).toStringAsFixed(1)+' '+hintWeightType+' to lose';
+    }else if(a<35){
+      while (a<35){
+        weight+=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }else{
+      return 'You are here';
+    }
+  }
+  String toClassIIIObese(){
+    double a=bmi;
+    double height=double.parse(heightController.text);
+    double weight=double.parse(weightController.text);
+    if(a>=40){
+      return 'You are here';
+    }else{
+      while (a<40){
+        weight+=0.1;
+        a=(weight / height / height) *
+            (selectedMetricSystem == 'Metric' ? 10000 : 703);
+      }
+      return (((double.parse(weightController.text))-weight)*-1).toStringAsFixed(1)+' '+hintWeightType+' to gain';
+    }
   }
 }
