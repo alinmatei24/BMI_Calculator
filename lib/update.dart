@@ -234,7 +234,10 @@ class _UpdateState extends State<Update> {
       });
   }
 
-  void onPressedUpdate() {}
+  void onPressedUpdate() {
+    User user=new User(nameController.text,heightController.text,selectedDate,selectedSex,selectedMetricSystem);
+    //de trimis catre bd si mesaj cu updated successfully
+  }
 
   void onPressedCancel() {
     Navigator.pushAndRemoveUntil<dynamic>(

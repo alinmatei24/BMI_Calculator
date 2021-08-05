@@ -65,8 +65,9 @@ class _HomeState extends State<Home> {
         ),
         centerTitle: true,
       ),
-      body:
-    Column(
+      body:Center(
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -297,11 +298,10 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
-
         ],
       ),
-
-
+    ),
+    ),
     );
   }
 
@@ -567,5 +567,9 @@ class _HomeState extends State<Home> {
     for(int i=0;i<10;i++){
       kg.add(FlSpot(bmiList[i].result,bmiList[i].weight));
     }
+  }
+  void addCalcToBd(){
+    BMI bm=new BMI(calcDate: DateTime.now(),weight: double.parse(weightController.text),result: bmi);
+    //de trimis catre BD
   }
 }
