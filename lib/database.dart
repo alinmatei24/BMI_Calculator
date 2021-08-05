@@ -62,14 +62,14 @@ class DBClient {
     }
   }
 
-/*
+
   Future<User> selectUser() async {
     try {
       List<Map> results = await _db.rawQuery('select * from user');
       List<User> users = [];
       results.forEach((result) {
         User user = new User(
-            name: results["name"],
+            name: results["name"].toString(),
             height: results["height"],
             birthDate: results["birthday"],
             gender: results["sex"],
@@ -81,7 +81,7 @@ class DBClient {
       print(e);
       throw Exception("An error occurred!");
     }
-  }*/
+  }
 }
 
 

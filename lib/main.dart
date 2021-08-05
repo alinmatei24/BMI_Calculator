@@ -288,6 +288,9 @@ class _HomeState extends State<Home> {
           SfCartesianChart(
             title: ChartTitle(text: 'Bmi history',),
             tooltipBehavior: _tooltipBehaviorBmi,
+            zoomPanBehavior: ZoomPanBehavior(
+              enablePanning: true,
+            ),
             series:<ChartSeries>[
             LineSeries<BmiData, DateTime>(
               name: 'Bmi',
@@ -298,10 +301,16 @@ class _HomeState extends State<Home> {
               enableTooltip: true,
             ),
           ],
-              primaryXAxis: DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift),
+              primaryXAxis:
+              DateTimeAxis(
+                  edgeLabelPlacement: EdgeLabelPlacement.shift,
+
+
+              ),
               primaryYAxis: NumericAxis(
                   labelFormat: '{value}',
-                  edgeLabelPlacement: EdgeLabelPlacement.shift),
+                  edgeLabelPlacement: EdgeLabelPlacement.shift,
+              ),
           ),
           SfCartesianChart(
             title: ChartTitle(text: 'Kg history',),
