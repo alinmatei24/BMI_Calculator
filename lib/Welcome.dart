@@ -23,8 +23,12 @@ class _WelcomeState extends State<Welcome> {
   bool canPressContinue = true;
   bool loadingDuringRegister = false;
 
-
-  User user=new User(name: 'Andrei',height: 165,birthDate:DateTime(1922, 11, 12),gender: 'Male', metric: 'Metric');
+  User user = new User(
+      name: 'Andrei',
+      height: 165,
+      birthDate: DateTime(1922, 11, 12),
+      gender: 'Male',
+      metric: 'Metric');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,29 +126,28 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ),
               new Flexible(
-                  child:
-                  Text('Select your gender:',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  ),
+                child: Text('Select your gender:',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ),
               new Flexible(
                   child: DropdownButton<String>(
-                    value: selectedMetricSystem,
-                    items: <String>['Metric', 'Imperial'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: new Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedMetricSystem = newValue!;
-                        updateHints();
-                      });
-                    },
-                  )),
+                value: selectedMetricSystem,
+                items: <String>['Metric', 'Imperial'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: new Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedMetricSystem = newValue!;
+                    updateHints();
+                  });
+                },
+              )),
             ],
           ),
           Row(
@@ -226,13 +229,17 @@ class _WelcomeState extends State<Welcome> {
   }
 
   Future<bool> registerUser() async {
-    await Future.delayed(Duration(seconds: 1));
     DBClient db = DBClient();
     try {
       await db.createDatabase();
       await db.insertUser(nameController.text, selectedSex, selectedDate,
           double.parse(heightControler.text), selectedMetricSystem);
-          user=new User(name: nameController.text, height: double.parse(heightControler.text), birthDate: selectedDate, gender:selectedSex, metric: selectedMetricSystem);
+      user = new User(
+          name: nameController.text,
+          height: double.parse(heightControler.text),
+          birthDate: selectedDate,
+          gender: selectedSex,
+          metric: selectedMetricSystem);
       return true;
     } catch (e) {
       print("Error during user registration: " + e.toString());

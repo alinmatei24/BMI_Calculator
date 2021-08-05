@@ -22,7 +22,7 @@ class DBClient {
 //create the database tables
   Future _createTables(Database db, int version) async {
     await db.execute(
-        'create table user(name primary key text, height real, birthday date, sex text, metric text)');
+        'create table user(name text primary_key, height real, birthday date, sex text, metric text)');
 
     await db.execute(
         'create table history(calc_date date, weight real, result real)');
@@ -62,26 +62,24 @@ class DBClient {
     }
   }
 
-
   Future<User> selectUser() async {
     try {
       List<Map> results = await _db.rawQuery('select * from user');
       List<User> users = [];
       results.forEach((result) {
         User user = new User(
-            name: results["name"].toString(),
-            height: results["height"],
-            birthDate: results["birthday"],
-            gender: results["sex"],
-            metric: results["metric"]);
+            name: result["name"],
+            height: result["height"],
+            birthDate:
+                new DateTime.fromMillisecondsSinceEpoch(result["birthday"]),
+            gender: result["sex"],
+            metric: result["metric"]);
         users.add(user);
       });
       return users.first;
     } catch (e) {
       print(e);
-      throw Exception("An error occurred!");
+      throw Exception("No user found");
     }
   }
 }
-
-
