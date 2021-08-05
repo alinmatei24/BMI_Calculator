@@ -24,7 +24,7 @@ class _WelcomeState extends State<Welcome> {
   bool loadingDuringRegister = false;
 
 
-  User user=new User(null,null,null,null,null);
+  User user=new User(name: 'Andrei',height: 165,birthDate:DateTime(1922, 11, 12),gender: 'Male', metric: 'Metric');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -232,7 +232,7 @@ class _WelcomeState extends State<Welcome> {
       await db.createDatabase();
       await db.insertUser(nameController.text, selectedSex, selectedDate,
           double.parse(heightControler.text), selectedMetricSystem);
-          user=new User(nameController.text, heightControler.text, selectedDate, selectedSex, selectedMetricSystem);
+          user=new User(name: nameController.text, height: double.parse(heightControler.text), birthDate: selectedDate, gender:selectedSex, metric: selectedMetricSystem);
       return true;
     } catch (e) {
       print("Error during user registration: " + e.toString());

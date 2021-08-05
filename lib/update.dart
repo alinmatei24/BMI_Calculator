@@ -235,7 +235,7 @@ class _UpdateState extends State<Update> {
   }
 
   void onPressedUpdate() {
-    User user=new User(nameController.text,heightController.text,selectedDate,selectedSex,selectedMetricSystem);
+    User user=new User(name: nameController.text, height: double.parse(heightController.text), birthDate: selectedDate,gender: selectedSex,metric: selectedMetricSystem);
     //de trimis catre bd si mesaj cu updated successfully
   }
 
@@ -255,9 +255,9 @@ class _UpdateState extends State<Update> {
       selectedMetricSystem=widget.user.metric;
       selectedDate = widget.user.birthDate;
       if(selectedMetricSystem=='Metric'){
-        heightController.text = widget.user.height;
+        heightController.text = widget.user.height.toString();
       }else{
-        heightController.text = (double.parse(widget.user.height)/2.54).toStringAsFixed(0).toString();
+        heightController.text = (double.parse(widget.user.height.toString())/2.54).toStringAsFixed(0).toString();
       }
     });
   }

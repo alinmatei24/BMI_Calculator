@@ -22,7 +22,7 @@ class DBClient {
 //create the database tables
   Future _createTables(Database db, int version) async {
     await db.execute(
-        'create table user(name primary key, sex text, birthday date, height real, metric text)');
+        'create table user(name primary key text, height real, birthday date, sex text, metric text)');
 
     await db.execute(
         'create table history(calc_date date, weight real, result real)');
@@ -30,10 +30,10 @@ class DBClient {
 
 //register a user
   Future<void> insertUser(String name, String sex, DateTime birthday,
-      double height, String heightType) async {
+      double height, String metric) async {
     await _db.rawInsert(
-        'insert into user(name, sex, birthday, height, metric) VALUES(?, ?, ?, ?, ?)',
-        [name, sex, birthday.millisecondsSinceEpoch, height]);
+        'insert into user(name, height, birthday, sex, metric) VALUES(?, ?, ?, ?, ?)',
+        [name, height, birthday.millisecondsSinceEpoch, sex, metric]);
   }
 
   //register a calculation
@@ -61,4 +61,27 @@ class DBClient {
       throw Exception("An error occurred!");
     }
   }
+
+/*
+  Future<User> selectUser() async {
+    try {
+      List<Map> results = await _db.rawQuery('select * from user');
+      List<User> users = [];
+      results.forEach((result) {
+        User user = new User(
+            name: results["name"],
+            height: results["height"],
+            birthDate: results["birthday"],
+            gender: results["sex"],
+            metric: results["metric"]);
+        users.add(user);
+      });
+      return users.first;
+    } catch (e) {
+      print(e);
+      throw Exception("An error occurred!");
+    }
+  }*/
 }
+
+

@@ -1,9 +1,9 @@
 class User {
-  var name;
-  var height;
-  var birthDate;
-  var gender;
-  var metric;
+  String name;
+  double height;
+  DateTime birthDate;
+  String gender;
+  String metric;
 
-  User(this.name, this.height, this.birthDate, this.gender, this.metric);
+  User({required this.name, required this.height, required this.birthDate, required this.gender, required this.metric});
 }

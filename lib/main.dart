@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math';
+import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/Welcome.dart';
 import 'package:proiect_bmi/update.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 
 import 'BMI.dart';
@@ -32,7 +34,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<FlSpot> kg=[];
 
   String hintHeightType = 'Cm';
   String hintWeightType = 'Kg';
@@ -46,10 +47,19 @@ class _HomeState extends State<Home> {
 
   final classification=TextEditingController(text: '');
 
+  //code for chart
+  List<BmiData> _chartBmiData=[];
+  List<KgData> _chartKgData=[];
+  TooltipBehavior _tooltipBehaviorBmi=TooltipBehavior(enable: true);
+  TooltipBehavior _tooltipBehaviorKg=TooltipBehavior(enable: true);
+
   @override
   void initState() {
     fillFieldsFromDB();
-    chart();
+    _tooltipBehaviorBmi= TooltipBehavior(enable: true);
+    _chartBmiData = getChartBmiData();
+    _tooltipBehaviorKg= TooltipBehavior(enable: true);
+    _chartKgData = getChartKgData();
     super.initState();
   }
 
@@ -65,8 +75,8 @@ class _HomeState extends State<Home> {
         ),
         centerTitle: true,
       ),
-      body:Center(
-      child: SingleChildScrollView(
+      body:
+      SingleChildScrollView(
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -274,34 +284,47 @@ class _HomeState extends State<Home> {
             color: Colors.black,
           ),
           ),
-          Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(20),
-                width: 500,
-                height: 300,
-                child: LineChart(
-                  LineChartData(
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: kg,
-                        isCurved: true,
-                        barWidth: 3,
-                        colors: [
-                          Colors.red,
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+          //                                               chart
+          SfCartesianChart(
+            title: ChartTitle(text: 'Bmi history',),
+            tooltipBehavior: _tooltipBehaviorBmi,
+            series:<ChartSeries>[
+            LineSeries<BmiData, DateTime>(
+              name: 'Bmi',
+              dataSource: _chartBmiData,
+              xValueMapper: (BmiData data, _) => data.year,
+              yValueMapper: (BmiData data, _)=> data.bmi,
+              dataLabelSettings:DataLabelSettings(isVisible: true),
+              enableTooltip: true,
+            ),
+          ],
+              primaryXAxis: DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift),
+              primaryYAxis: NumericAxis(
+                  labelFormat: '{value}',
+                  edgeLabelPlacement: EdgeLabelPlacement.shift),
+          ),
+          SfCartesianChart(
+            title: ChartTitle(text: 'Kg history',),
+            tooltipBehavior: _tooltipBehaviorKg,
+            series:<ChartSeries>[
+              LineSeries<KgData, DateTime >(
+                name: 'Kg',
+                dataSource: _chartKgData,
+                xValueMapper: (KgData data, _) => data.year,
+                yValueMapper: (KgData data, _) => data.kg,
+                dataLabelSettings:DataLabelSettings(isVisible: true),
+                enableTooltip: true,
               ),
             ],
+            primaryXAxis: DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift),
+            primaryYAxis: NumericAxis(
+                labelFormat: '{value} kg',
+                edgeLabelPlacement: EdgeLabelPlacement.shift),
           ),
         ],
       ),
     ),
-    ),
+
     );
   }
 
@@ -398,9 +421,9 @@ class _HomeState extends State<Home> {
     setState(() {
       selectedMetricSystem=widget.user.metric;
       if(selectedMetricSystem=='Metric'){
-        heightController.text = widget.user.height;
+        heightController.text = widget.user.height.toString();
       }else{
-        heightController.text= (double.parse(widget.user.height)/2.54).toStringAsFixed(0).toString();
+        heightController.text= (widget.user.height/2.54).toStringAsFixed(0).toString();
       }
       selectedSex = widget.user.gender;
       ageController.text =(DateTime.now().difference(widget.user.birthDate).inDays / 365).toStringAsFixed(0).toString();
@@ -408,7 +431,7 @@ class _HomeState extends State<Home> {
   }
 
   User getCurrentUser() {//aici in trebe sa luam user din db ca metoda asta se apeleaza cand se creaza pagina)
-    User user=new User('Andrei','165',DateTime(1922, 11, 12),'Male', 'Metric');//asa trebe sa arate datele din db/user
+    User user=new User(name: 'Andrei',height: 165,birthDate:DateTime(1922, 11, 12),gender: 'Male', metric: 'Metric');//asa trebe sa arate datele din db/user
     return user;
   }
 
@@ -551,7 +574,14 @@ class _HomeState extends State<Home> {
   }
   //test only
 
-  void chart(){
+
+  void addCalcToBd(){
+    BMI bm=new BMI(calcDate: DateTime.now(),weight: double.parse(weightController.text),result: bmi);
+    //de trimis catre BD
+  }
+
+
+  List<BmiData> getChartBmiData(){
     List<BMI> bmiList=[];
     bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:99,result: 36.4));
     bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:96,result:34.1));
@@ -564,12 +594,43 @@ class _HomeState extends State<Home> {
     bmiList.add(new BMI(calcDate:DateTime(2021, 10, 12),weight:75,result:24.2));
     bmiList.add(new BMI(calcDate:DateTime(2021, 11, 12),weight:68,result:22.0));
 
-    for(int i=0;i<10;i++){
-      kg.add(FlSpot(bmiList[i].result,bmiList[i].weight));
+    final List<BmiData> chartBmiData=[];
+    for(int i=0;i<bmiList.length;i++){
+      chartBmiData.add(new BmiData(bmiList[i].calcDate, bmiList[i].result));
     }
+    return chartBmiData;
   }
-  void addCalcToBd(){
-    BMI bm=new BMI(calcDate: DateTime.now(),weight: double.parse(weightController.text),result: bmi);
-    //de trimis catre BD
+  List<KgData> getChartKgData(){
+    List<BMI> bmiList=[];
+    bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:99,result: 36.4));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 5, 12),weight:96,result:34.1));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 6, 12),weight:92,result:33.6));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 6, 12),weight:89,result:31.8));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 7, 12),weight:87,result:30.6));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 7, 12),weight:85,result:29.5));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 8, 12),weight:83,result:28.7));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 9, 12),weight:78,result:26.3));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 10, 12),weight:75,result:24.2));
+    bmiList.add(new BMI(calcDate:DateTime(2021, 11, 12),weight:68,result:22.0));
+
+    final List<KgData> chartKgData=[];
+    for(int i=0;i<bmiList.length;i++){
+      chartKgData.add(new KgData(bmiList[i].calcDate, bmiList[i].weight));
+    }
+    return chartKgData;
   }
+
+}
+
+//code for chart
+class BmiData{
+  BmiData(this.year,this.bmi);
+  final DateTime year;
+  final double bmi;
+}
+
+class KgData{
+  KgData(this.year,this.kg);
+  final DateTime year;
+  final double kg;
 }
