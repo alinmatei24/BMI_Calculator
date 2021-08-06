@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   String selectedMetricSystem = 'Metric';
   String response = '';
   double bmi = 0;
-  bool updateButton=true;
+  bool updateButton = true;
   final weightController = TextEditingController();
   final heightController = TextEditingController();
   final ageController = TextEditingController();
@@ -219,7 +219,7 @@ class _HomeState extends State<Home> {
               ],
             ),
             ElevatedButton(
-              onPressed: (updateButton) ? null:onPressedCalculate,
+              onPressed: (updateButton) ? null : onPressedCalculate,
               style: ElevatedButton.styleFrom(
                   primary: Colors.black, padding: EdgeInsets.all(10.0)),
               child: //calculate button
@@ -433,25 +433,11 @@ class _HomeState extends State<Home> {
     });
   }
 
-  User getCurrentUser() {
-    //aici in trebe sa luam user din db ca metoda asta se apeleaza cand se creaza pagina)
-    User user = new User(
-        name: 'Andrei',
-        height: 165,
-        birthDate: DateTime(1922, 11, 12),
-        gender: 'Male',
-        metric: 'Metric'); //asa trebe sa arate datele din db/user
-    return user;
-  }
-
   void onPressUpdate() {
-    //inca nu am folosit
-    Navigator.pushAndRemoveUntil<dynamic>(
+    Navigator.push<dynamic>(
         context,
         MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => Update(widget.user),
-        ),
-        (route) => false);
+            builder: (BuildContext context) => Update(widget.user)));
   }
 
   void classificationString() {
@@ -703,17 +689,16 @@ class _HomeState extends State<Home> {
     return chartKgData;
   }
 
-  void checkValidUpdatePress(){
-    if(weightController.text.isEmpty || heightController.text.isEmpty || ageController.text.isEmpty){
-      updateButton=true;
-    }else{
-      updateButton=false;
+  void checkValidUpdatePress() {
+    if (weightController.text.isEmpty ||
+        heightController.text.isEmpty ||
+        ageController.text.isEmpty) {
+      updateButton = true;
+    } else {
+      updateButton = false;
     }
-    setState(() {
-
-    });
+    setState(() {});
   }
-
 }
 
 //code for chart

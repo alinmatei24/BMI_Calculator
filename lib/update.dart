@@ -13,21 +13,19 @@ class Update extends StatefulWidget {
 }
 
 class _UpdateState extends State<Update> {
-  String currentUserName='';//we need this to update in db by name in case we change the name too
+  String? currentUserName;
   DateTime selectedDate = DateTime.now();
   String selectedSex = 'Male';
   String selectedMetricSystem = 'Metric';
   final nameController = TextEditingController();
   final heightController = TextEditingController();
   String hintHeightType = 'Cm';
-  bool updateButton=false;
+  bool updateButton = false;
 
   @override
-  void initState()  {
+  void initState() {
+    fillFieldsFromDataBase();
     super.initState();
-    fillFieldsFromDataBase().whenComplete(() {
-      setState(() {});
-    });
   }
 
   @override
@@ -57,58 +55,58 @@ class _UpdateState extends State<Update> {
           SizedBox(height: 50), //space between items in column
           Row(
             children: [
-              new Flexible(child:
-              Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text('Name',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
-                  TextField(
-                    //name
-                    onChanged: (text) {
-                      checkValidUpdatePress();
-                    },
-                    textAlign: TextAlign.center,
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      hintText: 'Name',
-                      fillColor: Colors.red,
-                      border: OutlineInputBorder(),
+              new Flexible(
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text('Name',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ),
-                  ),
-                ],
-              ),
-              ),
-              new Flexible(child:
-              Text(
-                'Select Metric System:',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+                    TextField(
+                      //name
+                      onChanged: (text) {
+                        checkValidUpdatePress();
+                      },
+                      textAlign: TextAlign.center,
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'Name',
+                        fillColor: Colors.red,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              new Flexible(
+                child: Text(
+                  'Select Metric System:',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               new Flexible(
                   child: DropdownButton<String>(
-                    value: selectedMetricSystem,
-                    items: <String>['Metric', 'Imperial'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: new Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedMetricSystem = newValue!;
-                        updateHints();
-                      });
-                    },
-                  )),
+                value: selectedMetricSystem,
+                items: <String>['Metric', 'Imperial'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: new Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedMetricSystem = newValue!;
+                    updateHints();
+                  });
+                },
+              )),
             ],
           ),
           SizedBox(height: 30), //space between items in column
@@ -132,7 +130,7 @@ class _UpdateState extends State<Update> {
                       controller: heightController,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) =>
-                      checkNumericValue(value!) ? null : "Number invalid",
+                          checkNumericValue(value!) ? null : "Number invalid",
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
@@ -159,7 +157,8 @@ class _UpdateState extends State<Update> {
                   ElevatedButton(
                     onPressed: () => _selectDate(context), // Refer step 3
                     style: ElevatedButton.styleFrom(
-                    primary: Colors.black,),
+                      primary: Colors.black,
+                    ),
                     child: Text(
                       'Select birth date',
                       style: TextStyle(
@@ -213,7 +212,7 @@ class _UpdateState extends State<Update> {
                 ),
               ),
               ElevatedButton(
-                onPressed:  (updateButton) ? null:onPressedUpdate,
+                onPressed: (updateButton) ? null : onPressedUpdate,
                 style: ElevatedButton.styleFrom(
                     primary: Colors.black, padding: EdgeInsets.all(10.0)),
                 child: //calculate button
@@ -245,13 +244,29 @@ class _UpdateState extends State<Update> {
       });
   }
 
-  Future<void> onPressedUpdate() async{
+  Future<void> onPressedUpdate() async {
     try {
       DBClient db = DBClient();
+      await db.createDatabase();
       await db.updateUser(
-          currentUserName, nameController.text, selectedSex, selectedDate,
-          double.parse(heightController.text), selectedMetricSystem);
-    } catch (e){
+          currentUserName!,
+          nameController.text,
+          selectedSex,
+          selectedDate,
+          double.parse(heightController.text),
+          selectedMetricSystem);
+      widget.user.name = currentUserName!;
+      widget.user.gender = selectedSex;
+      widget.user.birthDate = selectedDate;
+      widget.user.height = double.parse(heightController.text);
+      widget.user.metric = selectedMetricSystem;
+      Navigator.pushAndRemoveUntil<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => Home(widget.user),
+          ),
+          (route) => false);
+    } catch (e) {
       print("Error updating user: " + e.toString());
     }
   }
@@ -262,22 +277,23 @@ class _UpdateState extends State<Update> {
         MaterialPageRoute<dynamic>(
           builder: (BuildContext context) => Home(widget.user),
         ),
-            (route) => false);
+        (route) => false);
   }
 
-  Future<void> fillFieldsFromDataBase() async {
-    setState(() {
-      nameController.text = widget.user.name;
-      selectedSex = widget.user.gender;
-      selectedMetricSystem=widget.user.metric;
-      selectedDate = widget.user.birthDate;
-      if(selectedMetricSystem=='Metric'){
-        heightController.text = widget.user.height.toString();
-      }else{
-        heightController.text = (double.parse(widget.user.height.toString())/2.54).toStringAsFixed(0).toString();
-      }
-      currentUserName=widget.user.name;
-    });
+  void fillFieldsFromDataBase() {
+    nameController.text = widget.user.name;
+    selectedSex = widget.user.gender;
+    selectedMetricSystem = widget.user.metric;
+    selectedDate = widget.user.birthDate;
+    if (selectedMetricSystem == 'Metric') {
+      heightController.text = widget.user.height.toString();
+    } else {
+      heightController.text =
+          (double.parse(widget.user.height.toString()) / 2.54)
+              .toStringAsFixed(0)
+              .toString();
+    }
+    currentUserName = widget.user.name;
   }
 
   void updateHints() {
@@ -300,14 +316,12 @@ class _UpdateState extends State<Update> {
     return true;
   }
 
-  void checkValidUpdatePress(){
-    if(nameController.text.isEmpty || heightController.text.isEmpty){
-        updateButton=true;
-    }else{
-      updateButton=false;
+  void checkValidUpdatePress() {
+    if (nameController.text.isEmpty || heightController.text.isEmpty) {
+      updateButton = true;
+    } else {
+      updateButton = false;
     }
-    setState(() {
-
-    });
+    setState(() {});
   }
 }

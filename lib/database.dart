@@ -83,17 +83,22 @@ class DBClient {
     }
   }
 
-  Future<bool> updateUser(String currentName, String name, String sex, DateTime birthday,//update a user by name
-      double height, String metric) async{
-    try{
-      await _db.rawUpdate('UPDATE user SET name = ?, height = ?, birthday = ?, sex = ?, metric = ? WHERE name = ?',
-          [name, height, birthday.millisecondsSinceEpoch, sex, metric, currentName]);
-          print('Update complete');
+  Future<bool> updateUser(String currentName, String name, String sex,
+      DateTime birthday, double height, String metric) async {
+    print(currentName);
+    print(name);
+    print(sex);
+    print(birthday);
+    print(height);
+    print(metric);
+    try {
+      await _db.rawUpdate(
+          'update user set height = ? where name = ?', [height, currentName]);
+      print('Update complete');
       return true;
     } catch (e) {
       print(e);
       throw Exception("can't update user");
     }
-
   }
 }
