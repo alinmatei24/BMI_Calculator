@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'User.dart';
 import 'main.dart';
+import 'database.dart';
 
 class Update extends StatefulWidget {
   Update(this.user);
@@ -12,17 +13,21 @@ class Update extends StatefulWidget {
 }
 
 class _UpdateState extends State<Update> {
+  String currentUserName='';//we need this to update in db by name in case we change the name too
   DateTime selectedDate = DateTime.now();
   String selectedSex = 'Male';
   String selectedMetricSystem = 'Metric';
   final nameController = TextEditingController();
   final heightController = TextEditingController();
   String hintHeightType = 'Cm';
+  bool updateButton=false;
 
   @override
-  void initState() {
-    fillFieldsFromDataBase();
+  void initState()  {
     super.initState();
+    fillFieldsFromDataBase().whenComplete(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -65,6 +70,9 @@ class _UpdateState extends State<Update> {
                   ),
                   TextField(
                     //name
+                    onChanged: (text) {
+                      checkValidUpdatePress();
+                    },
                     textAlign: TextAlign.center,
                     controller: nameController,
                     decoration: InputDecoration(
@@ -118,6 +126,9 @@ class _UpdateState extends State<Update> {
                           fontWeight: FontWeight.bold,
                         )),
                     TextFormField(
+                      onChanged: (text) {
+                        checkValidUpdatePress();
+                      },
                       controller: heightController,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) =>
@@ -202,7 +213,7 @@ class _UpdateState extends State<Update> {
                 ),
               ),
               ElevatedButton(
-                onPressed: onPressedCancel,
+                onPressed:  (updateButton) ? null:onPressedUpdate,
                 style: ElevatedButton.styleFrom(
                     primary: Colors.black, padding: EdgeInsets.all(10.0)),
                 child: //calculate button
@@ -234,9 +245,15 @@ class _UpdateState extends State<Update> {
       });
   }
 
-  void onPressedUpdate() {
-    User user=new User(name: nameController.text, height: double.parse(heightController.text), birthDate: selectedDate,gender: selectedSex,metric: selectedMetricSystem);
-    //de trimis catre bd si mesaj cu updated successfully
+  Future<void> onPressedUpdate() async{
+    try {
+      DBClient db = DBClient();
+      await db.updateUser(
+          currentUserName, nameController.text, selectedSex, selectedDate,
+          double.parse(heightController.text), selectedMetricSystem);
+    } catch (e){
+      print("Error updating user: " + e.toString());
+    }
   }
 
   void onPressedCancel() {
@@ -248,7 +265,7 @@ class _UpdateState extends State<Update> {
             (route) => false);
   }
 
-  void fillFieldsFromDataBase() {
+  Future<void> fillFieldsFromDataBase() async {
     setState(() {
       nameController.text = widget.user.name;
       selectedSex = widget.user.gender;
@@ -259,6 +276,7 @@ class _UpdateState extends State<Update> {
       }else{
         heightController.text = (double.parse(widget.user.height.toString())/2.54).toStringAsFixed(0).toString();
       }
+      currentUserName=widget.user.name;
     });
   }
 
@@ -282,4 +300,14 @@ class _UpdateState extends State<Update> {
     return true;
   }
 
+  void checkValidUpdatePress(){
+    if(nameController.text.isEmpty || heightController.text.isEmpty){
+        updateButton=true;
+    }else{
+      updateButton=false;
+    }
+    setState(() {
+
+    });
+  }
 }

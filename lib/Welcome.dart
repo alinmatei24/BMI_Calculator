@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +17,12 @@ class _WelcomeState extends State<Welcome> {
   String selectedMetricSystem = 'Metric';
 
   final nameController = TextEditingController();
-  final heightControler = TextEditingController();
+  final heightController = TextEditingController();
   String hintHeightType = 'Cm';
   bool canPressContinue = true;
   bool loadingDuringRegister = false;
+  bool updateButton=true;
+  bool validDate=false;
 
   User user = new User(
       name: 'Andrei',
@@ -64,6 +65,9 @@ class _WelcomeState extends State<Welcome> {
                       ))),
               new Flexible(
                 child: TextField(
+                  onChanged: (text) {
+                    checkValidUpdatePress();
+                  },
                   controller: nameController,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -88,7 +92,7 @@ class _WelcomeState extends State<Welcome> {
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(
+                  Text( (!validDate) ? 'Pick a date':
                     "${selectedDate.toLocal()}".split(' ')[0],
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
@@ -112,7 +116,10 @@ class _WelcomeState extends State<Welcome> {
                   )),
               new Flexible(
                 child: TextFormField(
-                  controller: heightControler,
+                  onChanged: (text) {
+                    checkValidUpdatePress();
+                  },
+                  controller: heightController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
                       checkNumericValue(value!) ? null : "Number invalid",
@@ -174,8 +181,10 @@ class _WelcomeState extends State<Welcome> {
               ))
             ],
           ),
+
+
           ElevatedButton(
-            onPressed: canPressContinue
+            onPressed: (updateButton)? null: canPressContinue
                 ? () async {
                     setState(() {
                       canPressContinue = false;
@@ -214,6 +223,7 @@ class _WelcomeState extends State<Welcome> {
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
+        validDate=true;
       });
   }
 
@@ -233,10 +243,10 @@ class _WelcomeState extends State<Welcome> {
     try {
       await db.createDatabase();
       await db.insertUser(nameController.text, selectedSex, selectedDate,
-          double.parse(heightControler.text), selectedMetricSystem);
+          double.parse(heightController.text), selectedMetricSystem);
       user = new User(
           name: nameController.text,
-          height: double.parse(heightControler.text),
+          height: double.parse(heightController.text),
           birthDate: selectedDate,
           gender: selectedSex,
           metric: selectedMetricSystem);
@@ -288,6 +298,17 @@ class _WelcomeState extends State<Welcome> {
     } else if (selectedMetricSystem == 'Imperial') {
       hintHeightType = 'Inches';
     }
-    heightControler.text = '';
+    heightController.text = '';
+  }
+
+  void checkValidUpdatePress(){
+    if(nameController.text.isEmpty || heightController.text.isEmpty || !validDate){
+      updateButton=true;
+    }else{
+      updateButton=false;
+    }
+    setState(() {
+
+    });
   }
 }

@@ -26,6 +26,7 @@ class _HomeState extends State<Home> {
   String selectedMetricSystem = 'Metric';
   String response = '';
   double bmi = 0;
+  bool updateButton=true;
   final weightController = TextEditingController();
   final heightController = TextEditingController();
   final ageController = TextEditingController();
@@ -127,6 +128,9 @@ class _HomeState extends State<Home> {
                 ),
                 new Flexible(
                   child: TextFormField(
+                    onChanged: (text) {
+                      checkValidUpdatePress();
+                    },
                     controller: weightController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) =>
@@ -159,6 +163,9 @@ class _HomeState extends State<Home> {
                 ),
                 new Flexible(
                   child: TextFormField(
+                    onChanged: (text) {
+                      checkValidUpdatePress();
+                    },
                     controller: heightController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) =>
@@ -191,6 +198,9 @@ class _HomeState extends State<Home> {
                 ),
                 new Flexible(
                   child: TextFormField(
+                    onChanged: (text) {
+                      checkValidUpdatePress();
+                    },
                     controller: ageController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) =>
@@ -215,7 +225,7 @@ class _HomeState extends State<Home> {
               ],
             ),
             ElevatedButton(
-              onPressed: onPressedCalculate,
+              onPressed: (updateButton) ? null:onPressedCalculate,
               style: ElevatedButton.styleFrom(
                   primary: Colors.black, padding: EdgeInsets.all(10.0)),
               child: //calculate button
@@ -702,6 +712,18 @@ class _HomeState extends State<Home> {
     }
     return chartKgData;
   }
+
+  void checkValidUpdatePress(){
+    if(weightController.text.isEmpty || heightController.text.isEmpty || ageController.text.isEmpty){
+      updateButton=true;
+    }else{
+      updateButton=false;
+    }
+    setState(() {
+
+    });
+  }
+
 }
 
 //code for chart

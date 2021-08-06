@@ -82,4 +82,18 @@ class DBClient {
       throw Exception("No user found");
     }
   }
+
+  Future<bool> updateUser(String currentName, String name, String sex, DateTime birthday,//update a user by name
+      double height, String metric) async{
+    try{
+      await _db.rawUpdate('UPDATE user SET name = ?, height = ?, birthday = ?, sex = ?, metric = ? WHERE name = ?',
+          [name, height, birthday.millisecondsSinceEpoch, sex, metric, currentName]);
+          print('Update complete');
+      return true;
+    } catch (e) {
+      print(e);
+      throw Exception("can't update user");
+    }
+
+  }
 }
