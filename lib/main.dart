@@ -1,12 +1,6 @@
-import 'dart:async';
-import 'dart:developer';
-import 'dart:math';
-import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/Welcome.dart';
 import 'package:proiect_bmi/update.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import 'BMI.dart';
@@ -646,10 +640,6 @@ class _HomeState extends State<Home> {
   //test only
 
   void addCalcToBd() {
-    BMI bm = new BMI(
-        calcDate: DateTime.now(),
-        weight: double.parse(weightController.text),
-        result: bmi);
     //de trimis catre BD
   }
 
