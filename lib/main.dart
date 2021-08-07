@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:proiect_bmi/update.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import 'BMI.dart';
 import 'User.dart';
+import 'database.dart';
 
 class Home extends StatefulWidget {
   Home(this.user);
@@ -27,19 +29,9 @@ class _HomeState extends State<Home> {
 
   final classification = TextEditingController(text: '');
 
-  //code for chart
-  List<BmiData> _chartBmiData = [];
-  List<KgData> _chartKgData = [];
-  TooltipBehavior _tooltipBehaviorBmi = TooltipBehavior(enable: true);
-  TooltipBehavior _tooltipBehaviorKg = TooltipBehavior(enable: true);
-
   @override
   void initState() {
     fillFieldsFromDB();
-    _tooltipBehaviorBmi = TooltipBehavior(enable: true);
-    _chartBmiData = getChartBmiData();
-    _tooltipBehaviorKg = TooltipBehavior(enable: true);
-    _chartKgData = getChartKgData();
     super.initState();
   }
 
@@ -230,12 +222,33 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.center, //Center Row contents horizontally,
+                crossAxisAlignment: CrossAxisAlignment.center, //Center Row contents vertically,
+              children: [
             Text(
               bmi != 0 ? bmi.toStringAsFixed(1) : '',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
+              ),
+              Visibility(child:
+              ElevatedButton(
+                onPressed: onPressSave,
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
+                child: //calculate button
+                Text(
+                  'Save',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+                visible: (bmi!=0)? true:false,
+              ),
+              ],
             ),
             //calculated bmi
             Text(
@@ -272,54 +285,6 @@ class _HomeState extends State<Home> {
                 color: Colors.black,
               ),
             ),
-            //                                               chart
-            SfCartesianChart(
-              title: ChartTitle(
-                text: 'Bmi history',
-              ),
-              tooltipBehavior: _tooltipBehaviorBmi,
-              zoomPanBehavior: ZoomPanBehavior(
-                enablePanning: true,
-              ),
-              series: <ChartSeries>[
-                LineSeries<BmiData, DateTime>(
-                  name: 'Bmi',
-                  dataSource: _chartBmiData,
-                  xValueMapper: (BmiData data, _) => data.year,
-                  yValueMapper: (BmiData data, _) => data.bmi,
-                  dataLabelSettings: DataLabelSettings(isVisible: true),
-                  enableTooltip: true,
-                ),
-              ],
-              primaryXAxis: DateTimeAxis(
-                edgeLabelPlacement: EdgeLabelPlacement.shift,
-              ),
-              primaryYAxis: NumericAxis(
-                labelFormat: '{value}',
-                edgeLabelPlacement: EdgeLabelPlacement.shift,
-              ),
-            ),
-            SfCartesianChart(
-              title: ChartTitle(
-                text: 'Kg history',
-              ),
-              tooltipBehavior: _tooltipBehaviorKg,
-              series: <ChartSeries>[
-                LineSeries<KgData, DateTime>(
-                  name: 'Kg',
-                  dataSource: _chartKgData,
-                  xValueMapper: (KgData data, _) => data.year,
-                  yValueMapper: (KgData data, _) => data.kg,
-                  dataLabelSettings: DataLabelSettings(isVisible: true),
-                  enableTooltip: true,
-                ),
-              ],
-              primaryXAxis:
-                  DateTimeAxis(edgeLabelPlacement: EdgeLabelPlacement.shift),
-              primaryYAxis: NumericAxis(
-                  labelFormat: '{value} kg',
-                  edgeLabelPlacement: EdgeLabelPlacement.shift),
-            ),
           ],
         ),
       ),
@@ -351,7 +316,7 @@ class _HomeState extends State<Home> {
         !checkNumericValue(ageController.text)) {
       classification.text = '';
       //check for valid number
-      showAlertDialog(context);
+      showToast("There are some invalid values", Colors.white, Colors.black);
     } else {
       bmi = calculateBMI();
       response = getResponse();
@@ -388,31 +353,15 @@ class _HomeState extends State<Home> {
     heightController.text = '';
   }
 
-  showAlertDialog(BuildContext context) {
-    // Create button
-    Widget okButton = TextButton(
-      child: Text("OK"),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
-
-    // Create AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("Invalid Values"),
-      content: Text("Each value must be grater than 0!"),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
+  void showToast(String msg, Color backgroundColor, Color textColor) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        fontSize: 16.0);
   }
 
   void fillFieldsFromDB() {
@@ -623,71 +572,6 @@ class _HomeState extends State<Home> {
           ' to gain';
     }
   }
-  //test only
-
-  void addCalcToBd() {
-    //de trimis catre BD
-  }
-
-  List<BmiData> getChartBmiData() {
-    List<BMI> bmiList = [];
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 5, 12), weight: 99, result: 36.4));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 5, 12), weight: 96, result: 34.1));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 6, 12), weight: 92, result: 33.6));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 6, 12), weight: 89, result: 31.8));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 7, 12), weight: 87, result: 30.6));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 7, 12), weight: 85, result: 29.5));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 8, 12), weight: 83, result: 28.7));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 9, 12), weight: 78, result: 26.3));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 10, 12), weight: 75, result: 24.2));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 11, 12), weight: 68, result: 22.0));
-
-    final List<BmiData> chartBmiData = [];
-    for (int i = 0; i < bmiList.length; i++) {
-      chartBmiData.add(new BmiData(bmiList[i].calcDate, bmiList[i].result));
-    }
-    return chartBmiData;
-  }
-
-  List<KgData> getChartKgData() {
-    List<BMI> bmiList = [];
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 5, 12), weight: 99, result: 36.4));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 5, 12), weight: 96, result: 34.1));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 6, 12), weight: 92, result: 33.6));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 6, 12), weight: 89, result: 31.8));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 7, 12), weight: 87, result: 30.6));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 7, 12), weight: 85, result: 29.5));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 8, 12), weight: 83, result: 28.7));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 9, 12), weight: 78, result: 26.3));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 10, 12), weight: 75, result: 24.2));
-    bmiList.add(
-        new BMI(calcDate: DateTime(2021, 11, 12), weight: 68, result: 22.0));
-
-    final List<KgData> chartKgData = [];
-    for (int i = 0; i < bmiList.length; i++) {
-      chartKgData.add(new KgData(bmiList[i].calcDate, bmiList[i].weight));
-    }
-    return chartKgData;
-  }
 
   void checkValidUpdatePress() {
     if (weightController.text.isEmpty ||
@@ -699,17 +583,37 @@ class _HomeState extends State<Home> {
     }
     setState(() {});
   }
-}
 
-//code for chart
-class BmiData {
-  BmiData(this.year, this.bmi);
-  final DateTime year;
-  final double bmi;
-}
+  Future<void> onPressSave() async{
+    try {
+      DBClient db = DBClient();
+      await db.createDatabase();
+      await db.registerBMI(widget.user.birthDate, double.parse(weightController.text), bmi);
 
-class KgData {
-  KgData(this.year, this.kg);
-  final DateTime year;
-  final double kg;
+    } catch (e) {
+      print("Error updating user: " + e.toString());
+    }
+  }
+
+  Future<void> getHistoryList() async {
+    List<BMI> history=[];
+    try {
+      DBClient db = DBClient();
+      await db.createDatabase();
+     history= await db.getHistory();
+      displayHistory(history);
+
+    } catch (e) {
+      print("Error updating user: " + e.toString());
+    }
+  }
+  void displayHistory(List<BMI> list){
+
+    for(int i=0;i<list.length;i++){
+      print("Date:"+list[i].calcDate.toString()+" ");
+      print("Weight:"+list[i].weight.toString()+" ");
+      print("Result:"+list[i].result.toString()+" ");
+
+    }
+  }
 }

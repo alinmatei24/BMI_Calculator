@@ -40,7 +40,7 @@ class DBClient {
   Future<void> registerBMI(DateTime date, double weight, double result) async {
     await _db.rawInsert(
         'insert into history(calc_date, weight, result) VALUES(?, ?, ?)',
-        [date, weight, result]);
+        [date.millisecondsSinceEpoch, weight, result]);
   }
 
   Future<List<BMI>> getHistory() async {
@@ -50,7 +50,7 @@ class DBClient {
       List<BMI> BMIs = [];
       results.forEach((result) {
         BMI bmi = new BMI(
-            calcDate: result["calc_date"],
+            calcDate: new DateTime.fromMillisecondsSinceEpoch(result["calc_date"]),
             weight: result["weight"],
             result: result["result"]);
         BMIs.add(bmi);
