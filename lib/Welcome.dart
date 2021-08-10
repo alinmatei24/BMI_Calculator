@@ -1,10 +1,9 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/main.dart';
-import 'User.dart';
+import 'package:proiect_bmi/home.dart';
+import '/model/user.dart';
 import 'database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class Welcome extends StatefulWidget {
   @override
@@ -12,24 +11,113 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
-  DateTime selectedDate = DateTime.now();
-  String selectedSex = 'Male';
-  String selectedMetricSystem = 'Metric';
+  DateTime? selectedDate;
+  String selectedGender = 'Male';
+  String selectedUnitSystem = 'Metric';
+  String heightUnitHint = 'cm';
 
   final nameController = TextEditingController();
   final heightController = TextEditingController();
-  String hintHeightType = 'Cm';
-  bool canPressContinue = true;
-  bool loadingDuringRegister = false;
-  bool updateButton=true;
-  bool validDate=false;
 
-  User user = new User(
-      name: 'Andrei',
-      height: 165,
-      birthDate: DateTime(1922, 11, 12),
-      gender: 'Male',
-      metric: 'Metric');
+  bool canPressContinue = false;
+  bool isWaitingForRegister = false;
+  bool validBirthday = false;
+
+  selectBirthday(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null)
+      setState(() {
+        selectedDate = picked;
+        validBirthday = true;
+      });
+  }
+
+  bool checkNumericValue(String string) {
+    if (string.isEmpty) {
+      return true;
+    }
+    final number = num.tryParse(string);
+    if (number == null || number <= 0) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> registerUserInDb() async {
+    DBClient db = DBClient();
+    try {
+      await db.createDatabase();
+      await db.insertUser(nameController.text, selectedGender, selectedDate!,
+          double.parse(heightController.text), selectedUnitSystem);
+      return true;
+    } catch (e) {
+      print("Error during user registration: " + e.toString());
+      return false;
+    }
+  }
+
+  void showToast(String msg, Color backgroundColor, Color textColor) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        fontSize: 16.0);
+  }
+
+  void onPressedContinue() async {
+    bool registration = await registerUserInDb();
+    if (registration) {
+      showToast("Registration complete", Colors.green.shade300, Colors.white);
+      User user = User(
+          name: nameController.text,
+          height: double.parse(heightController.text),
+          birthDate: selectedDate!,
+          gender: selectedGender,
+          metric: selectedUnitSystem);
+      Navigator.pushAndRemoveUntil<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => Home(user),
+          ),
+          (route) => false);
+    } else {
+      showToast("An error occurred during user registration. Please try again.",
+          Colors.red.shade300, Colors.white);
+      setState(() {
+        canPressContinue = true;
+        isWaitingForRegister = false;
+      });
+    }
+  }
+
+  void updateHints() {
+    if (selectedUnitSystem == 'Metric') {
+      heightUnitHint = 'cm';
+    } else if (selectedUnitSystem == 'Imperial') {
+      heightUnitHint = 'inches';
+    }
+    heightController.text = '';
+  }
+
+  void checkValidFields() {
+    if (nameController.text.isEmpty ||
+        heightController.text.isEmpty ||
+        !validBirthday) {
+      canPressContinue = false;
+    } else {
+      canPressContinue = true;
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,144 +139,122 @@ class _WelcomeState extends State<Welcome> {
             'Welcome, let\'s set things up\n',
             style: TextStyle(
               fontSize: 30,
-              fontWeight: FontWeight.bold,
             ),
           ),
           Row(
             children: [
-              Padding(
-                  padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Text('Name:',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ))),
-              new Flexible(
+              Flexible(
+                  child: Padding(
+                padding: EdgeInsets.all(10),
                 child: TextField(
                   onChanged: (text) {
-                    checkValidUpdatePress();
+                    checkValidFields();
                   },
                   controller: nameController,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    hintText: 'Name',
-                    fillColor: Colors.red,
-                    border: OutlineInputBorder(),
+                    labelText: 'Name',
                   ),
                 ),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                'Birth date:',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              new Flexible(
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text( (!validDate) ? 'Pick a date':
-                    "${selectedDate.toLocal()}".split(' ')[0],
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _selectDate(context), // Refer step 3
-                    child: Icon(Icons.edit),
-                  ),
-                ],
               ))
             ],
           ),
           Row(
             children: [
-              Text('Height:',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              Padding(
+                  padding: EdgeInsets.only(right: 5, left: 10),
+                  child: Text(
+                    'Birthday:',
                   )),
-              new Flexible(
-                child: TextFormField(
-                  onChanged: (text) {
-                    checkValidUpdatePress();
-                  },
-                  controller: heightController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) =>
-                      checkNumericValue(value!) ? null : "Number invalid",
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: hintHeightType,
-                    fillColor: Colors.red,
-                    border: OutlineInputBorder(),
-                  ),
+              Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Text(
+                    (!validBirthday)
+                        ? 'Pick a date'
+                        : DateFormat("dd-MMM-yyyy").format(selectedDate!),
+                    style: TextStyle(fontSize: 15),
+                  )),
+              ElevatedButton(
+                onPressed: () => selectBirthday(context),
+                child: Icon(Icons.edit),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Flexible(
+                  child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text(
+                  'Units:',
                 ),
-              ),
-              new Flexible(
-                child: Text('Select your gender:',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    )),
-              ),
-              new Flexible(
+              )),
+              Flexible(
                   child: DropdownButton<String>(
-                value: selectedMetricSystem,
+                value: selectedUnitSystem,
                 items: <String>['Metric', 'Imperial'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: new Text(value),
+                    child: Text(value),
                   );
                 }).toList(),
-                onChanged: (newValue) {
+                onChanged: (value) {
                   setState(() {
-                    selectedMetricSystem = newValue!;
+                    canPressContinue = false;
+                    selectedUnitSystem = value!;
                     updateHints();
                   });
                 },
               )),
             ],
           ),
+          Flexible(
+              child: Padding(
+            padding: EdgeInsets.all(10),
+            child: TextFormField(
+              onChanged: (text) {
+                checkValidFields();
+              },
+              controller: heightController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) =>
+                  checkNumericValue(value!) ? null : "Invalid number",
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                  labelText: 'Height', helperText: heightUnitHint),
+            ),
+          )),
           Row(
             children: [
-              Text('Select your gender:',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'Gender:',
                   )),
-              new Flexible(
+              Flexible(
                   child: DropdownButton<String>(
-                value: selectedSex,
+                value: selectedGender,
                 items: <String>['Male', 'Female'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: new Text(value),
+                    child: Text(value),
                   );
                 }).toList(),
-                onChanged: (newValue) {
+                onChanged: (value) {
                   setState(() {
-                    selectedSex = newValue!;
+                    selectedGender = value!;
                   });
                 },
               ))
             ],
           ),
-
-
           ElevatedButton(
-            onPressed: (updateButton)? null: canPressContinue
+            onPressed: (canPressContinue)
                 ? () async {
                     setState(() {
                       canPressContinue = false;
-                      loadingDuringRegister = true;
+                      isWaitingForRegister = true;
                     });
                     onPressedContinue();
                   }
@@ -201,9 +267,9 @@ class _WelcomeState extends State<Welcome> {
             ),
           ),
           Visibility(
-            visible: loadingDuringRegister,
+            visible: isWaitingForRegister,
             child: Center(
-              child: new CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 color: Colors.orange,
               ),
             ),
@@ -211,104 +277,5 @@ class _WelcomeState extends State<Welcome> {
         ],
       ),
     );
-  }
-
-  _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate, // Refer step 1
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2025),
-    );
-    if (picked != null && picked != selectedDate)
-      setState(() {
-        selectedDate = picked;
-        validDate=true;
-      });
-  }
-
-  bool checkNumericValue(String string) {
-    if (string.isEmpty) {
-      return true;
-    }
-    final number = num.tryParse(string);
-    if (number == null || number <= 0) {
-      return false;
-    }
-    return true;
-  }
-
-  Future<bool> registerUser() async {
-    DBClient db = DBClient();
-    try {
-      await db.createDatabase();
-      await db.insertUser(nameController.text, selectedSex, selectedDate,
-          double.parse(heightController.text), selectedMetricSystem);
-      user = new User(
-          name: nameController.text,
-          height: double.parse(heightController.text),
-          birthDate: selectedDate,
-          gender: selectedSex,
-          metric: selectedMetricSystem);
-      return true;
-    } catch (e) {
-      print("Error during user registration: " + e.toString());
-      return false;
-    }
-  }
-
-  void showToast(String msg, Color backgroundColor, Color textColor) {
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        fontSize: 16.0);
-  }
-
-  void onPressedContinue() async {
-    //create user in db
-    bool registration = await registerUser();
-    if (registration) {
-      showToast("Registration complete", Colors.green.shade300, Colors.white);
-      //create user object
-
-      //pass user obj to home
-      Navigator.pushAndRemoveUntil<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(user),
-          ),
-          (route) => false);
-    } else {
-      showToast("An error occurred during user registration. Please try again.",
-          Colors.red.shade300, Colors.white);
-      setState(() {
-        canPressContinue = true;
-        loadingDuringRegister = false;
-      });
-    }
-  }
-
-  void updateHints() {
-    if (selectedMetricSystem == 'Metric') {
-      hintHeightType = 'Cm';
-    } else if (selectedMetricSystem == 'Imperial') {
-      hintHeightType = 'Inches';
-    }
-    heightController.text = '';
-  }
-
-  void checkValidUpdatePress(){
-    if(nameController.text.isEmpty || heightController.text.isEmpty || !validDate){
-      updateButton=true;
-    }else{
-      updateButton=false;
-    }
-    setState(() {
-
-    });
   }
 }

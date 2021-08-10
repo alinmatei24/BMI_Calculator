@@ -4,8 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:proiect_bmi/update.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import 'BMI.dart';
-import 'User.dart';
+import 'model/bmi.dart';
+import 'model/user.dart';
 import 'database.dart';
 
 class Home extends StatefulWidget {
@@ -223,31 +223,33 @@ class _HomeState extends State<Home> {
               ),
             ),
             Row(
-                mainAxisAlignment: MainAxisAlignment.center, //Center Row contents horizontally,
-                crossAxisAlignment: CrossAxisAlignment.center, //Center Row contents vertically,
+              mainAxisAlignment:
+                  MainAxisAlignment.center, //Center Row contents horizontally,
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, //Center Row contents vertically,
               children: [
-            Text(
-              bmi != 0 ? bmi.toStringAsFixed(1) : '',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              ),
-              Visibility(child:
-              ElevatedButton(
-                onPressed: onPressSave,
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
-                child: //calculate button
                 Text(
-                  'Save',
+                  bmi != 0 ? bmi.toStringAsFixed(1) : '',
                   style: TextStyle(
-                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-                visible: (bmi!=0)? true:false,
-              ),
+                Visibility(
+                  child: ElevatedButton(
+                    onPressed: onPressSave,
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.black, padding: EdgeInsets.all(10.0)),
+                    child: //calculate button
+                        Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  visible: (bmi != 0) ? true : false,
+                ),
               ],
             ),
             //calculated bmi
@@ -584,36 +586,34 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  Future<void> onPressSave() async{
+  Future<void> onPressSave() async {
     try {
       DBClient db = DBClient();
       await db.createDatabase();
-      await db.registerBMI(widget.user.birthDate, double.parse(weightController.text), bmi);
-
+      await db.registerBMI(
+          widget.user.birthDate, double.parse(weightController.text), bmi);
     } catch (e) {
       print("Error updating user: " + e.toString());
     }
   }
 
   Future<void> getHistoryList() async {
-    List<BMI> history=[];
+    List<BMI> history = [];
     try {
       DBClient db = DBClient();
       await db.createDatabase();
-     history= await db.getHistory();
+      history = await db.getHistory();
       displayHistory(history);
-
     } catch (e) {
       print("Error updating user: " + e.toString());
     }
   }
-  void displayHistory(List<BMI> list){
 
-    for(int i=0;i<list.length;i++){
-      print("Date:"+list[i].calcDate.toString()+" ");
-      print("Weight:"+list[i].weight.toString()+" ");
-      print("Result:"+list[i].result.toString()+" ");
-
+  void displayHistory(List<BMI> list) {
+    for (int i = 0; i < list.length; i++) {
+      print("Date:" + list[i].calcDate.toString() + " ");
+      print("Weight:" + list[i].weight.toString() + " ");
+      print("Result:" + list[i].result.toString() + " ");
     }
   }
 }

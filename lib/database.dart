@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart';
-import 'BMI.dart';
+import 'model/bmi.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'User.dart';
+import 'model/user.dart';
 
 class DBClient {
   late Database _db;
@@ -50,7 +50,8 @@ class DBClient {
       List<BMI> BMIs = [];
       results.forEach((result) {
         BMI bmi = new BMI(
-            calcDate: new DateTime.fromMillisecondsSinceEpoch(result["calc_date"]),
+            calcDate:
+                new DateTime.fromMillisecondsSinceEpoch(result["calc_date"]),
             weight: result["weight"],
             result: result["result"]);
         BMIs.add(bmi);
@@ -62,7 +63,7 @@ class DBClient {
     }
   }
 
-  Future<User> selectUser() async {
+  Future<User> getDefaultUser() async {
     try {
       List<Map> results = await _db.rawQuery('select * from user');
       List<User> users = [];

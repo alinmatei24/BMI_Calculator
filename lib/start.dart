@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/main.dart';
-import 'package:proiect_bmi/Welcome.dart';
-import 'User.dart';
+import 'package:proiect_bmi/home.dart';
+import 'package:proiect_bmi/welcome.dart';
+import 'model/user.dart';
 import 'database.dart';
 
 void main() {
@@ -21,11 +21,11 @@ class _StartAppState extends State<StartApp> {
     try {
       DBClient db = DBClient();
       await db.createDatabase();
-      User connectedUser = await db.selectUser();
+      User connectedUser = await db.getDefaultUser();
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(connectedUser),
+            builder: (BuildContext context) => Welcome(),
           ),
           (route) => false);
     } catch (e) {
@@ -40,8 +40,8 @@ class _StartAppState extends State<StartApp> {
 
   @override
   void initState() {
-    super.initState();
     getUser();
+    super.initState();
   }
 
   @override

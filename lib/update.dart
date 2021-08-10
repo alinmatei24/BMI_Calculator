@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'User.dart';
-import 'main.dart';
+import 'model/user.dart';
+import 'home.dart';
 import 'database.dart';
 
 class Update extends StatefulWidget {
