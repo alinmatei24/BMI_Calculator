@@ -5,14 +5,14 @@ import 'model/user.dart';
 import 'home.dart';
 import 'database.dart';
 
-class Update extends StatefulWidget {
-  Update(this.user);
+class UserProfile extends StatefulWidget {
+  UserProfile(this.user);
   final User user;
   @override
-  _UpdateState createState() => _UpdateState();
+  _UserProfileState createState() => _UserProfileState();
 }
 
-class _UpdateState extends State<Update> {
+class _UserProfileState extends State<UserProfile> {
   String? currentUserName;
   DateTime selectedDate = DateTime.now();
   String selectedSex = 'Male';
@@ -257,9 +257,9 @@ class _UpdateState extends State<Update> {
           selectedMetricSystem);
       widget.user.name = currentUserName!;
       widget.user.gender = selectedSex;
-      widget.user.birthDate = selectedDate;
+      widget.user.birthDay = selectedDate;
       widget.user.height = double.parse(heightController.text);
-      widget.user.metric = selectedMetricSystem;
+      widget.user.unitSystem = selectedMetricSystem;
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
@@ -283,8 +283,8 @@ class _UpdateState extends State<Update> {
   void fillFieldsFromDataBase() {
     nameController.text = widget.user.name;
     selectedSex = widget.user.gender;
-    selectedMetricSystem = widget.user.metric;
-    selectedDate = widget.user.birthDate;
+    selectedMetricSystem = widget.user.unitSystem;
+    selectedDate = widget.user.birthDay;
     if (selectedMetricSystem == 'Metric') {
       heightController.text = widget.user.height.toString();
     } else {

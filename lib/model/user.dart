@@ -1,9 +1,14 @@
 class User {
   String name;
   double height;
-  DateTime birthDate;
+  DateTime birthDay;
   String gender;
-  String metric;
+  String unitSystem;
 
-  User({required this.name, required this.height, required this.birthDate, required this.gender, required this.metric});
+  User(
+      {required this.name,
+      required this.height,
+      required this.birthDay,
+      required this.gender,
+      required this.unitSystem});
 }

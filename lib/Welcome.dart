@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:proiect_bmi/home.dart';
 import '/model/user.dart';
 import 'database.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'utils.dart';
 
 class Welcome extends StatefulWidget {
   @override
@@ -37,17 +37,6 @@ class _WelcomeState extends State<Welcome> {
       });
   }
 
-  bool checkNumericValue(String string) {
-    if (string.isEmpty) {
-      return true;
-    }
-    final number = num.tryParse(string);
-    if (number == null || number <= 0) {
-      return false;
-    }
-    return true;
-  }
-
   Future<bool> registerUserInDb() async {
     DBClient db = DBClient();
     try {
@@ -61,17 +50,6 @@ class _WelcomeState extends State<Welcome> {
     }
   }
 
-  void showToast(String msg, Color backgroundColor, Color textColor) {
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        fontSize: 16.0);
-  }
-
   void onPressedContinue() async {
     bool registration = await registerUserInDb();
     if (registration) {
@@ -79,9 +57,9 @@ class _WelcomeState extends State<Welcome> {
       User user = User(
           name: nameController.text,
           height: double.parse(heightController.text),
-          birthDate: selectedDate!,
+          birthDay: selectedDate!,
           gender: selectedGender,
-          metric: selectedUnitSystem);
+          unitSystem: selectedUnitSystem);
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(

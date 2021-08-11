@@ -22,7 +22,7 @@ class DBClient {
 //create the database tables
   Future _createTables(Database db, int version) async {
     await db.execute(
-        'create table user(name text primary_key, height real, birthday date, sex text, metric text)');
+        'create table user(name text primary_key, height real, birthday date, sex text, unit_system text)');
 
     await db.execute(
         'create table history(calc_date date, weight real, result real)');
@@ -30,10 +30,10 @@ class DBClient {
 
 //register a user
   Future<void> insertUser(String name, String sex, DateTime birthday,
-      double height, String metric) async {
+      double height, String unitSystem) async {
     await _db.rawInsert(
-        'insert into user(name, height, birthday, sex, metric) VALUES(?, ?, ?, ?, ?)',
-        [name, height, birthday.millisecondsSinceEpoch, sex, metric]);
+        'insert into user(name, height, birthday, sex, unit_system) VALUES(?, ?, ?, ?, ?)',
+        [name, height, birthday.millisecondsSinceEpoch, sex, unitSystem]);
   }
 
   //register a calculation
@@ -71,10 +71,10 @@ class DBClient {
         User user = new User(
             name: result["name"],
             height: result["height"],
-            birthDate:
+            birthDay:
                 new DateTime.fromMillisecondsSinceEpoch(result["birthday"]),
             gender: result["sex"],
-            metric: result["metric"]);
+            unitSystem: result["unit_system"]);
         users.add(user);
       });
       return users.first;
@@ -85,20 +85,12 @@ class DBClient {
   }
 
   Future<bool> updateUser(String currentName, String name, String sex,
-      DateTime birthday, double height, String metric) async {
-    print(currentName);
-    print(name);
-    print(sex);
-    print(birthday);
-    print(height);
-    print(metric);
+      DateTime birthday, double height, String unitSystem) async {
     try {
       await _db.rawUpdate(
           'update user set height = ? where name = ?', [height, currentName]);
-      print('Update complete');
       return true;
     } catch (e) {
-      print(e);
       throw Exception("can't update user");
     }
   }
