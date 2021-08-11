@@ -25,7 +25,7 @@ class _StartAppState extends State<StartApp> {
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Welcome(),
+            builder: (BuildContext context) => Home(connectedUser),
           ),
           (route) => false);
     } catch (e) {
