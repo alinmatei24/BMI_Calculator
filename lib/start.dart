@@ -16,7 +16,7 @@ class StartApp extends StatefulWidget {
   _StartAppState createState() => _StartAppState();
 }
 
-class _StartAppState extends State<StartApp> {//am modificat ca sa pornesc din start history page
+class _StartAppState extends State<StartApp> {
   Future getUser() async {
     try {
       DBClient db = DBClient();

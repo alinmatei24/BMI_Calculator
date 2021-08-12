@@ -21,9 +21,9 @@ class _HomeState extends State<Home> {
   String selectedSex = 'Male';
   String selectedUnitSystem = 'Metric';
 
-  String classification='';
-  String response='';
-  double bmi=0.0;
+  String classification = '';
+  String response = '';
+  double bmi = 0.0;
   bool canPressCalculate = false;
 
   final weightController = TextEditingController();
@@ -63,12 +63,7 @@ class _HomeState extends State<Home> {
       selectedUnitSystem = newUnitSystem;
     }
   }
-  void onPressSeeHistory(){
-    Navigator.push<dynamic>(
-        context,
-        MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => History(widget.user)));
-  }
+
   void checkCanPressCalculate() {
     if (weightController.text.isEmpty ||
         heightController.text.isEmpty ||
@@ -84,19 +79,9 @@ class _HomeState extends State<Home> {
     bmi = calculateBmi(double.parse(weightController.text),
         double.parse(heightController.text), selectedUnitSystem);
     response = getBmiResult(bmi);
-    classification = getClassification(
-        bmi,
-        double.parse(weightController.text),
-        double.parse(heightController.text),
-        selectedUnitSystem);
+    classification = getClassification(bmi, double.parse(weightController.text),
+        double.parse(heightController.text), selectedUnitSystem);
     setState(() {});
-  }
-
-  void onPressEditProfile() {
-    Navigator.push<dynamic>(
-        context,
-        MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => UserProfile(widget.user)));
   }
 
   Future<void> onPressSave() async {
@@ -289,8 +274,7 @@ class _HomeState extends State<Home> {
               onPressed: (canPressCalculate) ? onPressedCalculate : null,
               style: ElevatedButton.styleFrom(
                   primary: Colors.black, padding: EdgeInsets.all(10.0)),
-              child: //calculate button
-                  Text(
+              child: Text(
                 'Calculate',
                 style: TextStyle(
                   color: Colors.white,
@@ -302,7 +286,7 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  (bmi!=0.0) ? bmi.toStringAsFixed(1):'',
+                  (bmi != 0.0) ? bmi.toStringAsFixed(1) : '',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -335,23 +319,33 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                onPressed: onPressEditProfile,
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
-                child: //calculate button
-                Text(
-                  'Edit profile',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-                ElevatedButton(
-                  onPressed: onPressSeeHistory,
+                  onPressed: () {
+                    Navigator.push<dynamic>(
+                        context,
+                        MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) =>
+                                UserProfile(widget.user)));
+                  },
                   style: ElevatedButton.styleFrom(
                       primary: Colors.black, padding: EdgeInsets.all(10.0)),
-                  child: //calculate button
-                  Text(
+                  child: Text(
+                    'Edit profile',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push<dynamic>(
+                        context,
+                        MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) =>
+                                History(widget.user)));
+                  },
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.black, padding: EdgeInsets.all(10.0)),
+                  child: Text(
                     'See History',
                     style: TextStyle(
                       color: Colors.white,
@@ -360,7 +354,7 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-      const Divider(
+            const Divider(
               color: Colors.black,
               height: 25,
               thickness: 2,
