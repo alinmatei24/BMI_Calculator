@@ -20,9 +20,9 @@ class _HomeState extends State<Home> {
   String selectedSex = 'Male';
   String selectedUnitSystem = 'Metric';
 
-  String? classification;
-  String? response;
-  double? bmi;
+  String classification='';
+  String response='';
+  double bmi=0.0;
   bool canPressCalculate = false;
 
   final weightController = TextEditingController();
@@ -45,9 +45,8 @@ class _HomeState extends State<Home> {
     }
     selectedSex = widget.user.gender;
     ageController.text =
-        (DateTime.now().difference(widget.user.birthDay).inDays / 365)
-            .toStringAsFixed(0)
-            .toString();
+        (DateTime.now().difference(widget.user.birthDate).inDays / 365)
+            .toStringAsFixed(0);
   }
 
   void unitSystemChanged(String newUnitSystem) {
@@ -78,9 +77,9 @@ class _HomeState extends State<Home> {
   void onPressedCalculate() {
     bmi = calculateBmi(double.parse(weightController.text),
         double.parse(heightController.text), selectedUnitSystem);
-    response = getBmiResult(bmi!);
+    response = getBmiResult(bmi);
     classification = getClassification(
-        bmi!,
+        bmi,
         double.parse(weightController.text),
         double.parse(heightController.text),
         selectedUnitSystem);
@@ -99,7 +98,7 @@ class _HomeState extends State<Home> {
       DBClient db = DBClient();
       await db.createDatabase();
       await db.registerBMI(
-          widget.user.birthDay, double.parse(weightController.text), bmi!);
+          widget.user.birthDate, double.parse(weightController.text), bmi);
     } catch (e) {
       showToast("An error occurred during data saving. Please try again.",
           Colors.red.shade300, Colors.white);
@@ -297,7 +296,7 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  bmi!.toString(),
+                  (bmi!=0.0) ? bmi.toStringAsFixed(1):'',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -320,7 +319,7 @@ class _HomeState extends State<Home> {
               ],
             ),
             Text(
-              response!,
+              response.toString(),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -346,7 +345,7 @@ class _HomeState extends State<Home> {
               endIndent: 5,
             ),
             Text(
-              classification!,
+              classification.toString(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

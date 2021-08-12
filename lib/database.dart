@@ -71,7 +71,7 @@ class DBClient {
         User user = new User(
             name: result["name"],
             height: result["height"],
-            birthDay:
+            birthDate:
                 new DateTime.fromMillisecondsSinceEpoch(result["birthday"]),
             gender: result["sex"],
             unitSystem: result["unit_system"]);

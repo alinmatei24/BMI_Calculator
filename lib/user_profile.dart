@@ -257,7 +257,7 @@ class _UserProfileState extends State<UserProfile> {
           selectedMetricSystem);
       widget.user.name = currentUserName!;
       widget.user.gender = selectedSex;
-      widget.user.birthDay = selectedDate;
+      widget.user.birthDate = selectedDate;
       widget.user.height = double.parse(heightController.text);
       widget.user.unitSystem = selectedMetricSystem;
       Navigator.pushAndRemoveUntil<dynamic>(
@@ -284,7 +284,7 @@ class _UserProfileState extends State<UserProfile> {
     nameController.text = widget.user.name;
     selectedSex = widget.user.gender;
     selectedMetricSystem = widget.user.unitSystem;
-    selectedDate = widget.user.birthDay;
+    selectedDate = widget.user.birthDate;
     if (selectedMetricSystem == 'Metric') {
       heightController.text = widget.user.height.toString();
     } else {

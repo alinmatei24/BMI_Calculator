@@ -31,7 +31,7 @@ double fromInchToCm(double inch) {
   return 2;
 }
 
-double fromLbstoKg(double lbs) {
+double fromLbsToKg(double lbs) {
   return 2;
 }
 
@@ -40,7 +40,7 @@ double fromKgToLbs(double kg) {
 }
 
 double convertWeight(double weight, String newSystem) {
-  return newSystem == 'Metric' ? fromLbstoKg(weight) : fromKgToLbs(weight);
+  return newSystem == 'Metric' ? fromLbsToKg(weight) : fromKgToLbs(weight);
 }
 
 double convertHeight(double height, String newSystem) {

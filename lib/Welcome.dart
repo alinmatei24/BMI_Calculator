@@ -57,9 +57,10 @@ class _WelcomeState extends State<Welcome> {
       User user = User(
           name: nameController.text,
           height: double.parse(heightController.text),
-          birthDay: selectedDate!,
+          birthDate: selectedDate!,
           gender: selectedGender,
           unitSystem: selectedUnitSystem);
+      print(user.name + ' ' + user.height.toString() + ' ' +user.birthDate.toString() + ' ' + user.gender + ' ' + user.unitSystem);
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
