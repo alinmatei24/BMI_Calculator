@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/user_profile.dart';
 //import 'package:syncfusion_flutter_charts/charts.dart';
+import 'history.dart';
 import 'model/user.dart';
 import 'database.dart';
 import 'utils.dart';
@@ -62,7 +63,12 @@ class _HomeState extends State<Home> {
       selectedUnitSystem = newUnitSystem;
     }
   }
-
+  void onPressSeeHistory(){
+    Navigator.push<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => History(widget.user)));
+  }
   void checkCanPressCalculate() {
     if (weightController.text.isEmpty ||
         heightController.text.isEmpty ||
@@ -325,19 +331,36 @@ class _HomeState extends State<Home> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            ElevatedButton(
-              onPressed: onPressEditProfile,
-              style: ElevatedButton.styleFrom(
-                  primary: Colors.black, padding: EdgeInsets.all(10.0)),
-              child: //calculate button
-                  Text(
-                'Edit profile',
-                style: TextStyle(
-                  color: Colors.white,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                onPressed: onPressEditProfile,
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.black, padding: EdgeInsets.all(10.0)),
+                child: //calculate button
+                Text(
+                  'Edit profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               ),
+                ElevatedButton(
+                  onPressed: onPressSeeHistory,
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.black, padding: EdgeInsets.all(10.0)),
+                  child: //calculate button
+                  Text(
+                    'See History',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const Divider(
+      const Divider(
               color: Colors.black,
               height: 25,
               thickness: 2,

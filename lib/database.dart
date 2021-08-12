@@ -94,4 +94,14 @@ class DBClient {
       throw Exception("can't update user");
     }
   }
+  Future<bool> deleteBMI(DateTime date, double weight, double result) async{
+    try {
+      await _db.rawUpdate(
+          'delete from history where calc_date = ? and weight= ? and result=?', [date.millisecondsSinceEpoch, weight, result]);
+      return true;
+    } catch (e) {
+      throw Exception("can't update user");
+    }
+  }
+
 }
