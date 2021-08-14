@@ -1,65 +1,44 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/user_profile.dart';
-//import 'package:syncfusion_flutter_charts/charts.dart';
-import 'history.dart';
-import 'model/user.dart';
-import 'database.dart';
-import 'utils.dart';
-import 'classifications.dart';
+import 'package:proiect_bmi/view/UserProfileScreen.dart';
+import '../history.dart';
+import '../model/User.dart';
+import '../model/BmiHints.dart';
+import '../model/BmiMath.dart';
+import '../model/Classification.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Home extends StatefulWidget {
-  Home(this.user);
+class HomeScreen extends StatefulWidget {
+  HomeScreen(this.user);
   final User user;
   @override
-  _HomeState createState() => _HomeState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeScreenState extends State<HomeScreen> {
+  bool canPressCalculate = false;
+  double bmi = 0.0;
+
   String heightUnit = 'Cm';
   String weightUnit = 'Kg';
-  String selectedSex = 'Male';
+  String selectedGender = 'Male';
   String selectedUnitSystem = 'Metric';
-
-  String classification = '';
-  String response = '';
-  double bmi = 0.0;
-  bool canPressCalculate = false;
+  Classification? currentClassification;
+  List<Classification>? allClassifications;
 
   final weightController = TextEditingController();
   final heightController = TextEditingController();
   final ageController = TextEditingController();
 
-  @override
-  void initState() {
-    initFields();
-    super.initState();
-  }
-
-  void initFields() {
-    selectedUnitSystem = widget.user.unitSystem;
-    if (selectedUnitSystem == 'Metric') {
-      heightController.text = widget.user.height.toString();
-    } else {
-      heightController.text =
-          convertHeight(widget.user.height, selectedUnitSystem).toString();
-    }
-    selectedSex = widget.user.gender;
-    ageController.text =
-        (DateTime.now().difference(widget.user.birthDate).inDays / 365)
-            .toStringAsFixed(0);
-  }
-
-  void unitSystemChanged(String newUnitSystem) {
+  void changeUnitSystem(String newUnitSystem) {
     if (selectedUnitSystem != newUnitSystem) {
-      weightUnit = getWeightUnit(newUnitSystem);
-      heightUnit = getHeightUnit(newUnitSystem);
-      weightController.text =
-          convertWeight(double.parse(weightController.text), newUnitSystem)
-              .toString();
-      heightController.text =
-          convertHeight(double.parse(heightController.text), newUnitSystem)
-              .toString();
+      weightUnit = BmiHints.getWeightUnit(newUnitSystem);
+      heightUnit = BmiHints.getHeightUnit(newUnitSystem);
+      weightController.text = BmiMath.convertWeightToSystem(
+              double.parse(weightController.text), newUnitSystem)
+          .toString();
+      heightController.text = BmiMath.convertHeightToSystem(
+              double.parse(heightController.text), newUnitSystem)
+          .toString();
       selectedUnitSystem = newUnitSystem;
     }
   }
@@ -75,29 +54,39 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  void onPressedCalculate() {
-    bmi = calculateBmi(double.parse(weightController.text),
+  void onPressedCalculate() async {
+    bmi = BmiMath.calculateBmi(double.parse(weightController.text),
         double.parse(heightController.text), selectedUnitSystem);
-    response = getBmiResult(bmi);
-    classification = getClassification(bmi, double.parse(weightController.text),
-        double.parse(heightController.text), selectedUnitSystem);
+    currentClassification = await Classification.getBmiClassification(bmi);
+    allClassifications = await Classification.getAllBmiClassifications();
     setState(() {});
   }
 
   Future<void> onPressSave() async {
     try {
-      DBClient db = DBClient();
-      await db.createDatabase();
-      await db.registerBMI(
-          widget.user.birthDate, double.parse(weightController.text), bmi);
+      await widget.user.insertUserBmi(
+          DateTime.now(), double.parse(weightController.text), bmi);
     } catch (e) {
-      showToast("An error occurred during data saving. Please try again.",
-          Colors.red.shade300, Colors.white);
+      Fluttertoast.showToast(
+          msg: "An error occurred during user registration. Please try again.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    selectedUnitSystem = widget.user.prefferedUnitSystem;
+    if (selectedUnitSystem == 'Metric') {
+      heightController.text = widget.user.height.toString();
+    } else {
+      heightController.text =
+          BmiMath.convertHeightToSystem(widget.user.height, selectedUnitSystem)
+              .toString();
+    }
+    selectedGender = widget.user.gender;
+    ageController.text =
+        (DateTime.now().difference(widget.user.birthday).inDays / 365)
+            .toStringAsFixed(0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -124,7 +113,7 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 DropdownButton<String>(
-                  value: selectedSex,
+                  value: selectedGender,
                   items: <String>['Male', 'Female'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
@@ -133,7 +122,7 @@ class _HomeState extends State<Home> {
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      selectedSex = newValue!;
+                      selectedGender = newValue!;
                     });
                   },
                 ),
@@ -157,7 +146,7 @@ class _HomeState extends State<Home> {
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      unitSystemChanged(newValue!);
+                      changeUnitSystem(newValue!);
                     });
                   },
                 ))
@@ -179,8 +168,9 @@ class _HomeState extends State<Home> {
                     },
                     controller: weightController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) =>
-                        checkNumericValue(value!) ? null : "Numar invalid",
+                    validator: (value) => BmiMath.checkNumericValue(value!)
+                        ? null
+                        : "Numar invalid",
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
@@ -214,8 +204,9 @@ class _HomeState extends State<Home> {
                     },
                     controller: heightController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) =>
-                        checkNumericValue(value!) ? null : "Numar invalid",
+                    validator: (value) => BmiMath.checkNumericValue(value!)
+                        ? null
+                        : "Numar invalid",
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -249,8 +240,9 @@ class _HomeState extends State<Home> {
                     },
                     controller: ageController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) =>
-                        checkNumericValue(value!) ? null : "Number invalid",
+                    validator: (value) => BmiMath.checkNumericValue(value!)
+                        ? null
+                        : "Number invalid",
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
@@ -309,7 +301,7 @@ class _HomeState extends State<Home> {
               ],
             ),
             Text(
-              response.toString(),
+              "clasificare bmi aici",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -324,7 +316,7 @@ class _HomeState extends State<Home> {
                         context,
                         MaterialPageRoute<dynamic>(
                             builder: (BuildContext context) =>
-                                UserProfile(widget.user)));
+                                UserProfileScreen(widget.user)));
                   },
                   style: ElevatedButton.styleFrom(
                       primary: Colors.black, padding: EdgeInsets.all(10.0)),
@@ -362,7 +354,7 @@ class _HomeState extends State<Home> {
               endIndent: 5,
             ),
             Text(
-              classification.toString(),
+              "lista completa clasificari aici",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

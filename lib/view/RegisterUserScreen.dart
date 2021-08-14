@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/home.dart';
-import '/model/user.dart';
-import 'database.dart';
+import 'package:proiect_bmi/view/HomeScreen.dart';
+import '../model/User.dart';
 import 'package:intl/intl.dart';
-import 'utils.dart';
+import '../model/BmiMath.dart';
+import '../model/BmiHints.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Welcome extends StatefulWidget {
+class RegisterUserScreen extends StatefulWidget {
+  final bool defaultUser;
+  RegisterUserScreen(this.defaultUser);
   @override
-  _WelcomeState createState() => _WelcomeState();
+  _RegisterUserScreenState createState() => _RegisterUserScreenState();
 }
 
-class _WelcomeState extends State<Welcome> {
-  DateTime? selectedDate;
-  String selectedGender = 'Male';
-  String selectedUnitSystem = 'Metric';
-  String heightUnitHint = 'cm';
-
-  final nameController = TextEditingController();
-  final heightController = TextEditingController();
-
+class _RegisterUserScreenState extends State<RegisterUserScreen> {
   bool canPressContinue = false;
   bool isWaitingForRegister = false;
   bool validBirthday = false;
 
-  selectBirthday(BuildContext context) async {
+  String selectedGender = 'Male';
+  String selectedUnitSystem = 'Metric';
+  String heightUnit = 'Cm';
+
+  DateTime? selectedDate;
+
+  final nameController = TextEditingController();
+  final heightController = TextEditingController();
+
+  _selectBirthday(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -37,53 +41,41 @@ class _WelcomeState extends State<Welcome> {
       });
   }
 
-  Future<bool> registerUserInDb() async {
-    DBClient db = DBClient();
+  void _registerNewUser() async {
+    User user = await User.createUser(
+        nameController.text,
+        double.parse(heightController.text),
+        selectedDate!,
+        selectedGender,
+        selectedUnitSystem,
+        widget.defaultUser);
+    Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => HomeScreen(user),
+        ),
+        (route) => false);
+  }
+
+  void showFailedUserRegistration() {
+    Fluttertoast.showToast(
+        msg: "An error occurred during user registration. Please try again.");
+    showOrHideLoadingIcon();
+  }
+
+  void beginUserRegistration() async {
     try {
-      await db.createDatabase();
-      await db.insertUser(nameController.text, selectedGender, selectedDate!,
-          double.parse(heightController.text), selectedUnitSystem);
-      return true;
+      _registerNewUser();
     } catch (e) {
-      print("Error during user registration: " + e.toString());
-      return false;
+      showFailedUserRegistration();
     }
   }
 
-  void onPressedContinue() async {
-    bool registration = await registerUserInDb();
-    if (registration) {
-      showToast("Registration complete", Colors.green.shade300, Colors.white);
-      User user = User(
-          name: nameController.text,
-          height: double.parse(heightController.text),
-          birthDate: selectedDate!,
-          gender: selectedGender,
-          unitSystem: selectedUnitSystem);
-      print(user.name + ' ' + user.height.toString() + ' ' +user.birthDate.toString() + ' ' + user.gender + ' ' + user.unitSystem);
-      Navigator.pushAndRemoveUntil<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(user),
-          ),
-          (route) => false);
-    } else {
-      showToast("An error occurred during user registration. Please try again.",
-          Colors.red.shade300, Colors.white);
-      setState(() {
-        canPressContinue = true;
-        isWaitingForRegister = false;
-      });
-    }
-  }
-
-  void updateHints() {
-    if (selectedUnitSystem == 'Metric') {
-      heightUnitHint = 'cm';
-    } else if (selectedUnitSystem == 'Imperial') {
-      heightUnitHint = 'inches';
-    }
-    heightController.text = '';
+  void showOrHideLoadingIcon() {
+    setState(() {
+      canPressContinue = !canPressContinue;
+      isWaitingForRegister = !isWaitingForRegister;
+    });
   }
 
   void checkValidFields() {
@@ -102,7 +94,7 @@ class _WelcomeState extends State<Welcome> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'BMI Calculator',
+          'Register',
           style: TextStyle(
             fontSize: 32,
           ),
@@ -115,7 +107,7 @@ class _WelcomeState extends State<Welcome> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
-            'Welcome, let\'s set things up\n',
+            'Let\'s create a new user',
             style: TextStyle(
               fontSize: 30,
             ),
@@ -154,7 +146,7 @@ class _WelcomeState extends State<Welcome> {
                     style: TextStyle(fontSize: 15),
                   )),
               ElevatedButton(
-                onPressed: () => selectBirthday(context),
+                onPressed: () => _selectBirthday(context),
                 child: Icon(Icons.edit),
               ),
             ],
@@ -179,9 +171,12 @@ class _WelcomeState extends State<Welcome> {
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                    canPressContinue = false;
                     selectedUnitSystem = value!;
-                    updateHints();
+                    heightUnit = BmiHints.getHeightUnit(selectedUnitSystem);
+                    heightController.text = BmiMath.convertHeightToSystem(
+                            double.parse(heightController.text),
+                            selectedUnitSystem)
+                        .toString();
                   });
                 },
               )),
@@ -197,11 +192,11 @@ class _WelcomeState extends State<Welcome> {
               controller: heightController,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) =>
-                  checkNumericValue(value!) ? null : "Invalid number",
+                  BmiMath.checkNumericValue(value!) ? null : "Invalid number",
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              decoration: InputDecoration(
-                  labelText: 'Height', helperText: heightUnitHint),
+              decoration:
+                  InputDecoration(labelText: 'Height', helperText: heightUnit),
             ),
           )),
           Row(
@@ -230,12 +225,9 @@ class _WelcomeState extends State<Welcome> {
           ),
           ElevatedButton(
             onPressed: (canPressContinue)
-                ? () async {
-                    setState(() {
-                      canPressContinue = false;
-                      isWaitingForRegister = true;
-                    });
-                    onPressedContinue();
+                ? () {
+                    showOrHideLoadingIcon();
+                    beginUserRegistration();
                   }
                 : null,
             child: Text(

@@ -1,30 +1,90 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../model/User.dart';
+import 'HomeScreen.dart';
+import '../model/BmiHints.dart';
+import '../model/BmiMath.dart';
 
-import 'model/user.dart';
-import 'home.dart';
-import 'database.dart';
-
-class UserProfile extends StatefulWidget {
-  UserProfile(this.user);
+class UserProfileScreen extends StatefulWidget {
+  UserProfileScreen(this.user);
   final User user;
   @override
-  _UserProfileState createState() => _UserProfileState();
+  _UserProfileScreenState createState() => _UserProfileScreenState();
 }
 
-class _UserProfileState extends State<UserProfile> {
-  String? currentUserName;
-  DateTime selectedDate = DateTime.now();
-  String selectedSex = 'Male';
-  String selectedMetricSystem = 'Metric';
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  bool canPressUpdateButton = false;
+
+  String selectedGender = 'Male';
+  String selectedUnitSystem = 'Metric';
+  String heightUnit = 'Cm';
+  DateTime? selectedDate;
+
   final nameController = TextEditingController();
   final heightController = TextEditingController();
-  String hintHeightType = 'Cm';
-  bool updateButton = false;
+
+  _selectBirthday(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null)
+      setState(() {
+        selectedDate = picked;
+      });
+  }
+
+  Future<void> _onPressedUpdate() async {
+    try {
+      await _updateUser();
+    } catch (e) {
+      print("Error updating user: " + e.toString());
+    }
+  }
+
+  Future<void> _updateUser() async {
+    await widget.user.updateUser(
+        nameController.text,
+        double.parse(heightController.text),
+        selectedDate!,
+        selectedGender,
+        selectedUnitSystem);
+    Navigator.pushAndRemoveUntil<dynamic>(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => HomeScreen(widget.user),
+        ),
+        (route) => false);
+  }
+
+  void _checkValidUpdatePress() {
+    if (nameController.text.isEmpty || heightController.text.isEmpty) {
+      canPressUpdateButton = true;
+    } else {
+      canPressUpdateButton = false;
+    }
+    setState(() {});
+  }
+
+  void initFields() {
+    nameController.text = widget.user.name;
+    selectedGender = widget.user.gender;
+    selectedUnitSystem = widget.user.prefferedUnitSystem;
+    selectedDate = widget.user.birthday;
+    if (selectedUnitSystem == 'Metric') {
+      heightController.text = widget.user.height.toString();
+    } else {
+      heightController.text =
+          BmiMath.convertHeightToSystem(widget.user.height, selectedUnitSystem)
+              .toString();
+    }
+  }
 
   @override
   void initState() {
-    fillFieldsFromDataBase();
+    initFields();
     super.initState();
   }
 
@@ -33,7 +93,7 @@ class _UserProfileState extends State<UserProfile> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'BMI Calculator',
+          'Edit profile',
           style: TextStyle(
             fontSize: 32,
           ),
@@ -41,7 +101,6 @@ class _UserProfileState extends State<UserProfile> {
         centerTitle: true,
       ),
       body: Column(
-        //everything
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Align(
@@ -52,7 +111,7 @@ class _UserProfileState extends State<UserProfile> {
                   fontWeight: FontWeight.bold,
                 )),
           ),
-          SizedBox(height: 50), //space between items in column
+          SizedBox(height: 50),
           Row(
             children: [
               new Flexible(
@@ -67,9 +126,8 @@ class _UserProfileState extends State<UserProfile> {
                           )),
                     ),
                     TextField(
-                      //name
                       onChanged: (text) {
-                        checkValidUpdatePress();
+                        _checkValidUpdatePress();
                       },
                       textAlign: TextAlign.center,
                       controller: nameController,
@@ -93,7 +151,7 @@ class _UserProfileState extends State<UserProfile> {
               ),
               new Flexible(
                   child: DropdownButton<String>(
-                value: selectedMetricSystem,
+                value: selectedUnitSystem,
                 items: <String>['Metric', 'Imperial'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -102,21 +160,23 @@ class _UserProfileState extends State<UserProfile> {
                 }).toList(),
                 onChanged: (newValue) {
                   setState(() {
-                    selectedMetricSystem = newValue!;
-                    updateHints();
+                    selectedUnitSystem = newValue!;
+                    heightUnit = BmiHints.getHeightUnit(selectedUnitSystem);
+                    heightController.text = BmiMath.convertHeightToSystem(
+                            double.parse(heightController.text),
+                            selectedUnitSystem)
+                        .toString();
                   });
                 },
               )),
             ],
           ),
-          SizedBox(height: 30), //space between items in column
+          SizedBox(height: 30),
           Row(
-            //the row with height, date and gender
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               new Flexible(
                 child: Column(
-                  //height
                   children: <Widget>[
                     Text('Height',
                         style: TextStyle(
@@ -125,16 +185,17 @@ class _UserProfileState extends State<UserProfile> {
                         )),
                     TextFormField(
                       onChanged: (text) {
-                        checkValidUpdatePress();
+                        _checkValidUpdatePress();
                       },
                       controller: heightController,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) =>
-                          checkNumericValue(value!) ? null : "Number invalid",
+                      validator: (value) => BmiMath.checkNumericValue(value!)
+                          ? null
+                          : "Number invalid",
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        hintText: hintHeightType,
+                        hintText: heightUnit,
                         fillColor: Colors.red,
                         border: OutlineInputBorder(),
                       ),
@@ -144,18 +205,17 @@ class _UserProfileState extends State<UserProfile> {
               ),
               new Flexible(
                   child: Column(
-                //select date
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    "${selectedDate.toLocal()}".split(' ')[0],
+                    "${selectedDate!.toLocal()}".split(' ')[0],
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     height: 20.0,
                   ),
                   ElevatedButton(
-                    onPressed: () => _selectDate(context), // Refer step 3
+                    onPressed: () => _selectBirthday(context),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.black,
                     ),
@@ -168,8 +228,7 @@ class _UserProfileState extends State<UserProfile> {
                 ],
               )),
               new Flexible(
-                child: //select gender
-                    Column(
+                child: Column(
                   children: [
                     Text('Gender',
                         style: TextStyle(
@@ -177,7 +236,7 @@ class _UserProfileState extends State<UserProfile> {
                           fontWeight: FontWeight.bold,
                         )),
                     DropdownButton<String>(
-                      value: selectedSex,
+                      value: selectedGender,
                       items: <String>['Male', 'Female'].map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -186,7 +245,7 @@ class _UserProfileState extends State<UserProfile> {
                       }).toList(),
                       onChanged: (newValue) {
                         setState(() {
-                          selectedSex = newValue!;
+                          selectedGender = newValue!;
                         });
                       },
                     ),
@@ -195,16 +254,23 @@ class _UserProfileState extends State<UserProfile> {
               )
             ],
           ),
-          SizedBox(height: 30), //space between items in column
+          SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               ElevatedButton(
-                onPressed: onPressedCancel,
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil<dynamic>(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) =>
+                            HomeScreen(widget.user),
+                      ),
+                      (route) => false);
+                },
                 style: ElevatedButton.styleFrom(
                     primary: Colors.black, padding: EdgeInsets.all(10.0)),
-                child: //calculate button
-                    Text(
+                child: Text(
                   'Cancel',
                   style: TextStyle(
                     color: Colors.white,
@@ -212,11 +278,10 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               ),
               ElevatedButton(
-                onPressed: (updateButton) ? null : onPressedUpdate,
+                onPressed: (canPressUpdateButton) ? null : _onPressedUpdate,
                 style: ElevatedButton.styleFrom(
                     primary: Colors.black, padding: EdgeInsets.all(10.0)),
-                child: //calculate button
-                    Text(
+                child: Text(
                   'Update',
                   style: TextStyle(
                     color: Colors.white,
@@ -228,100 +293,5 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
     );
-  }
-
-  _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate, // Refer step 1
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2025),
-    );
-    if (picked != null && picked != selectedDate)
-      setState(() {
-        selectedDate = picked;
-        print(picked);
-      });
-  }
-
-  Future<void> onPressedUpdate() async {
-    try {
-      DBClient db = DBClient();
-      await db.createDatabase();
-      await db.updateUser(
-          currentUserName!,
-          nameController.text,
-          selectedSex,
-          selectedDate,
-          double.parse(heightController.text),
-          selectedMetricSystem);
-      widget.user.name = currentUserName!;
-      widget.user.gender = selectedSex;
-      widget.user.birthDate = selectedDate;
-      widget.user.height = double.parse(heightController.text);
-      widget.user.unitSystem = selectedMetricSystem;
-      Navigator.pushAndRemoveUntil<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(widget.user),
-          ),
-          (route) => false);
-    } catch (e) {
-      print("Error updating user: " + e.toString());
-    }
-  }
-
-  void onPressedCancel() {
-    Navigator.pushAndRemoveUntil<dynamic>(
-        context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => Home(widget.user),
-        ),
-        (route) => false);
-  }
-
-  void fillFieldsFromDataBase() {
-    nameController.text = widget.user.name;
-    selectedSex = widget.user.gender;
-    selectedMetricSystem = widget.user.unitSystem;
-    selectedDate = widget.user.birthDate;
-    if (selectedMetricSystem == 'Metric') {
-      heightController.text = widget.user.height.toString();
-    } else {
-      heightController.text =
-          (double.parse(widget.user.height.toString()) / 2.54)
-              .toStringAsFixed(0)
-              .toString();
-    }
-    currentUserName = widget.user.name;
-  }
-
-  void updateHints() {
-    if (selectedMetricSystem == 'Metric') {
-      hintHeightType = 'Cm';
-    } else if (selectedMetricSystem == 'Imperial') {
-      hintHeightType = 'Inches';
-    }
-    heightController.text = '';
-  }
-
-  bool checkNumericValue(String string) {
-    if (string.isEmpty) {
-      return true;
-    }
-    final number = num.tryParse(string);
-    if (number == null || number <= 0) {
-      return false;
-    }
-    return true;
-  }
-
-  void checkValidUpdatePress() {
-    if (nameController.text.isEmpty || heightController.text.isEmpty) {
-      updateButton = true;
-    } else {
-      updateButton = false;
-    }
-    setState(() {});
   }
 }

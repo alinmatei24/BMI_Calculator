@@ -1,38 +1,34 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/home.dart';
-import 'package:proiect_bmi/welcome.dart';
-import 'model/user.dart';
-import 'database.dart';
+import 'package:proiect_bmi/view/HomeScreen.dart';
+import 'package:proiect_bmi/view/WelcomeScreen.dart';
+import '../model/User.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: StartApp(), //home page
+    home: StartScreen(),
   ));
 }
 
-class StartApp extends StatefulWidget {
+class StartScreen extends StatefulWidget {
   @override
-  _StartAppState createState() => _StartAppState();
+  _StartScreenState createState() => _StartScreenState();
 }
 
-class _StartAppState extends State<StartApp> {
-  Future getUser() async {
+class _StartScreenState extends State<StartScreen> {
+  Future goToHomeOrWelcomeScreen() async {
     try {
-      DBClient db = DBClient();
-      await db.createDatabase();
-      User connectedUser = await db.getDefaultUser();
+      User connectedUser = await User.getDefaultUser();
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Home(connectedUser),
+            builder: (BuildContext context) => HomeScreen(connectedUser),
           ),
           (route) => false);
     } catch (e) {
       Navigator.pushAndRemoveUntil<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => Welcome(),
+            builder: (BuildContext context) => WelcomeScreen(),
           ),
           (route) => false);
     }
@@ -40,7 +36,7 @@ class _StartAppState extends State<StartApp> {
 
   @override
   void initState() {
-    getUser();
+    goToHomeOrWelcomeScreen();
     super.initState();
   }
 
