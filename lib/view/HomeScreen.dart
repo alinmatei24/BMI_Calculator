@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proiect_bmi/view/UserProfileScreen.dart';
-import '../history.dart';
+import 'UserBmiScreen.dart';
 import '../model/User.dart';
 import '../model/BmiHints.dart';
 import '../model/BmiMath.dart';
@@ -333,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute<dynamic>(
                             builder: (BuildContext context) =>
-                                History(widget.user)));
+                                UserBmiScreen(widget.user)));
                   },
                   style: ElevatedButton.styleFrom(
                       primary: Colors.black, padding: EdgeInsets.all(10.0)),

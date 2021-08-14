@@ -4,14 +4,14 @@ import 'model/Bmi.dart';
 import 'model/User.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class History extends StatefulWidget {
-  History(this.user);
+class UserBmiScreen extends StatefulWidget {
+  UserBmiScreen(this.user);
   final User user;
   @override
-  _History createState() => _History();
+  _UserBmiScreen createState() => _UserBmiScreen();
 }
 
-class _History extends State<History> {
+class _UserBmiScreen extends State<UserBmiScreen> {
   List<Bmi> bmiList = [];
 
   Future<void> getUserBmi() async {
