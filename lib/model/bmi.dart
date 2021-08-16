@@ -1,5 +1,6 @@
+import 'package:proiect_bmi/model/user.dart';
+
 import 'DatabaseClient.dart';
-import 'User.dart';
 
 class Bmi {
   int id;

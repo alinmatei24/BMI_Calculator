@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'model/Bmi.dart';
-import 'model/User.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:proiect_bmi/model/bmi.dart';
+import 'package:proiect_bmi/model/user.dart';
 
 class UserBmiScreen extends StatefulWidget {
   UserBmiScreen(this.user);

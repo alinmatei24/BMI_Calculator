@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../model/User.dart';
+import 'package:proiect_bmi/model/user.dart';
 import 'HomeScreen.dart';
 import '../model/BmiHints.dart';
 import '../model/BmiMath.dart';

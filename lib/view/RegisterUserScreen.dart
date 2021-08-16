@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_bmi/model/user.dart';
 import 'package:proiect_bmi/view/HomeScreen.dart';
-import '../model/User.dart';
 import 'package:intl/intl.dart';
 import '../model/BmiMath.dart';
 import '../model/BmiHints.dart';
