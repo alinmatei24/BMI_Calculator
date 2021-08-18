@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
               endIndent: 5,
             ),
             Text(
-              'bla bla bla,
+              'bla bla bla',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
