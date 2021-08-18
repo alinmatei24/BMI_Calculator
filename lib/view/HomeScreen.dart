@@ -25,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedUnitSystem = 'Metric';
   Classification? currentClassification;
   List<Classification>? allClassifications;
-  String classificationString='';
 
   final weightController = TextEditingController();
   final heightController = TextEditingController();
@@ -61,10 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
         double.parse(heightController.text), selectedUnitSystem);
     currentClassification = await Classification.getBmiClassification(bmi);
     allClassifications = await Classification.getAllBmiClassifications();
-    classificationString='';
-    for(int i=0;i<allClassifications!.length;i++){
-      classificationString+=allClassifications![i].classification + allClassifications![i].getExtraWeightInfo(bmi,double.parse(weightController.text),double.parse(heightController.text),selectedUnitSystem)+"\n";
-    }
     setState(() {});
   }
 
@@ -360,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
               endIndent: 5,
             ),
             Text(
-              classificationString,
+              'bla bla bla,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
