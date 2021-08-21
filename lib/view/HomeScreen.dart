@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:proiect_bmi/model/user.dart';
+import 'package:proiect_bmi/model/User.dart';
 import 'package:proiect_bmi/model/Classification.dart';
 import 'package:proiect_bmi/view/UserProfileScreen.dart';
 import 'UserBmiScreen.dart';

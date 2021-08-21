@@ -1,4 +1,4 @@
-import 'package:proiect_bmi/model/user.dart';
+import 'package:proiect_bmi/model/User.dart';
 
 import 'DatabaseClient.dart';
 
