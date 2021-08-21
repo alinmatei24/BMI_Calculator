@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'model/Bmi.dart';
-import 'model/User.dart';
+import '../model/Bmi.dart';
+import '../model/User.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class UserBmiScreen extends StatefulWidget {
@@ -27,6 +27,12 @@ class _UserBmiScreen extends State<UserBmiScreen> {
       Fluttertoast.showToast(
           msg: "An error occurred during data deletion. Please try again.");
     }
+  }
+
+  @override
+  void initState() {
+    getUserBmi();
+    super.initState();
   }
 
   @override

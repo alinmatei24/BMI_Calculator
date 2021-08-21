@@ -15,7 +15,7 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  Future goToHomeOrWelcomeScreen() async {
+  Future _goToHomeOrWelcomeScreen() async {
     try {
       User connectedUser = await User.getDefaultUser();
       Navigator.pushAndRemoveUntil<dynamic>(
@@ -36,7 +36,7 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   void initState() {
-    goToHomeOrWelcomeScreen();
+    _goToHomeOrWelcomeScreen();
     super.initState();
   }
 

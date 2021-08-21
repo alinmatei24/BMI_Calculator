@@ -17,7 +17,7 @@ class Bmi {
     DatabaseClient databaseClient = await DatabaseClient.getDatabaseClient();
     try {
       List<Map> databaseResults = await databaseClient.getDatabase().rawQuery(
-          'select id, calculation_date, user_weight, bmi from user_bmi where user = ?',
+          'select id, calculation_date, user_weight, bmi from user_bmi where user_id = ?',
           [user.name]);
       List<Bmi> userBmiList = [];
       databaseResults.forEach((result) {

@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool canPressCalculate = false;
+  bool calculated = false;
   double bmi = 0.0;
 
   String heightUnit = 'Cm';
@@ -59,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
         double.parse(heightController.text), selectedUnitSystem);
     currentClassification = await Classification.getBmiClassification(bmi);
     allClassifications = await Classification.getAllBmiClassifications();
+    calculated = true;
     setState(() {});
   }
 
@@ -301,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             Text(
-              "clasificare bmi aici",
+              calculated ? currentClassification!.classification : '',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

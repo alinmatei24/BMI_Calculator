@@ -23,7 +23,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Column(
           children: [
             Text("Welcome, let\'s get started.."),
-            Text("Please fill out the form on the next page"),
+            Text(
+                "Please choose the theme you'd like to use and fill out the form on the next page"),
             ElevatedButton(
                 onPressed: () {
                   Navigator.push<dynamic>(
