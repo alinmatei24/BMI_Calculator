@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_bmi/model/User.dart';
 import 'package:proiect_bmi/view/HomeScreen.dart';
 import 'package:proiect_bmi/view/WelcomeScreen.dart';
-import '../model/User.dart';
 
 void main() {
   runApp(MaterialApp(

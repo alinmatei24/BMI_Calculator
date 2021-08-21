@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_bmi/model/User.dart';
+import 'package:proiect_bmi/model/Classification.dart';
 import 'package:proiect_bmi/view/UserProfileScreen.dart';
 import 'UserBmiScreen.dart';
-import '../model/User.dart';
 import '../model/BmiHints.dart';
 import '../model/BmiMath.dart';
 import '../model/Classification.dart';
@@ -356,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
               endIndent: 5,
             ),
             Text(
-              "lista completa clasificari aici",
+              'bla bla bla',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
